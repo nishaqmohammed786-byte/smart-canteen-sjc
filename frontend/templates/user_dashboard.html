@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Dashboard - Smart Canteen</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<header class="navbar">
+    <h2>Smart Canteen</h2>
+    <nav>
+        <a href="{{ url_for('menu_bp.all_menu') }}">Menu</a>
+        <a href="{{ url_for('order_bp.user_orders') }}">My Orders</a>
+        <a href="{{ url_for('auth.logout') }}">Logout</a>
+    </nav>
+</header>
+
+<section class="dashboard-section">
+    <h1>Welcome, {{ user_name }}!</h1>
+    <p>Check the menu or view your orders below.</p>
+    <div class="dashboard-buttons">
+        <a href="{{ url_for('menu_bp.all_menu') }}" class="btn">View Menu</a>
+        <a href="{{ url_for('order_bp.user_orders') }}" class="btn">My Orders</a>
+    </div>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Orders</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f6f8;
+            margin: 0;
+        }
+
+        .navbar {
+            background: #2c3e50;
+            padding: 15px 30px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .navbar a {
+            color: white;
+            margin-left: 15px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        h2 {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        table {
+            width: 90%;
+            margin: auto;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background: #2c3e50;
+            color: white;
+        }
+
+        .pending { color: orange; font-weight: bold; }
+        .accepted { color: green; font-weight: bold; }
+        .rejected { color: red; font-weight: bold; }
+    </style>
+</head>
+
+<body>
+
+<div class="navbar">
+    <div><strong>Smart Canteen</strong></div>
+    <div>
+        <a href="/menu">Menu</a>
+        <a href="/my-orders">My Orders</a>
+        <a href="/logout">Logout</a>
+    </div>
+</div>
+
+<h2>📦 My Orders</h2>
+
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Item</th>
+        <th>Qty</th>
+        <th>Status</th>
+        <th>Time</th>
+    </tr>
+
+    {% for order in orders %}
+    <tr>
+        <td>{{ order.id }}</td>
+        <td>{{ order.product_name }}</td>
+        <td>{{ order.quantity }}</td>
+        <td class="{{ order.status }}">{{ order.status }}</td>
+        <td>{{ order.order_time }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+</body>
+</html>

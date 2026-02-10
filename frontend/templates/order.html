@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Orders - Smart Canteen</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<header class="navbar">
+    <h2>Smart Canteen</h2>
+    <nav>
+        <a href="{{ url_for('menu_bp.all_menu') }}">Menu</a>
+        <a href="{{ url_for('order_bp.user_orders') }}">My Orders</a>
+        <a href="{{ url_for('auth.logout') }}">Logout</a>
+    </nav>
+    <h2>My Orders</h2>
+<ul>
+    {% for order in orders %}
+    <li>{{ order.name }} x {{ order.quantity }} - ${{ order.price * order.quantity }}</li>
+    {% endfor %}
+</ul>
+
+</header>
+
+<section class="orders-section">
+    <h1>My Orders</h1>
+    <table class="orders-table">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Status</th>
+                <th>Order Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.product_name }}</td>
+                <td>{{ order.quantity }}</td>
+                <td>{{ order.status }}</td>
+                <td>{{ order.order_time }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+</body>
+</html>

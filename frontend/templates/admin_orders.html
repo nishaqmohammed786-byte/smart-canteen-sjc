@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Orders | Smart Canteen</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+        }
+
+        h2 {
+            text-align: center;
+            margin: 25px 0;
+        }
+
+        table {
+            width: 90%;
+            margin: auto;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background: #2c3e50;
+            color: white;
+        }
+
+        .status-PENDING { color: orange; font-weight: bold; }
+        .status-PAID { color: blue; font-weight: bold; }
+        .status-ACCEPTED { color: green; font-weight: bold; }
+        .status-REJECTED { color: red; font-weight: bold; }
+
+        a.btn {
+            padding: 6px 12px;
+            text-decoration: none;
+            color: white;
+            border-radius: 4px;
+            font-size: 14px;
+            margin: 0 3px;
+            display: inline-block;
+        }
+
+        .accept { background: #27ae60; }
+        .reject { background: #e74c3c; }
+        .disabled { color: #777; }
+
+        .top-nav {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .top-nav a {
+            margin: 0 10px;
+            text-decoration: none;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="top-nav">
+    <a href="/admin/dashboard">🏠 Dashboard</a>
+    <a href="/logout">🚪 Logout</a>
+</div>
+
+<h2>📋 All Orders</h2>
+
+<table>
+    <tr>
+        <th>Order ID</th>
+        <th>User</th>
+        <th>Total Amount</th>
+        <th>Status</th>
+        <th>Action</th>
+    </tr>
+
+    {% for order in orders %}
+    <tr>
+        <td>{{ order.order_id }}</td>
+        <td>{{ order.user_name }}</td>
+        <td>₹ {{ order.total_amount }}</td>
+
+        <td class="status-{{ order.status }}">
+            {{ order.status }}
+        </td>
+
+        <td>
+            {% if order.status == 'PAID' %}
+                <a class="btn accept" href="/admin/accept/{{ order.order_id }}">Accept</a>
+                <a class="btn reject" href="/admin/reject/{{ order.order_id }}">Reject</a>
+            {% else %}
+                <span class="disabled">—</span>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+</body>
+</html>

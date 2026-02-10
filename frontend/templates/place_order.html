@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Place Order - Smart Canteen</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<!-- Navbar -->
+<header class="navbar">
+    <h2>Smart Canteen</h2>
+    <nav>
+        <a href="{{ url_for('menu_bp.all_menu') }}">Menu</a>
+        <a href="{{ url_for('order_bp.user_orders') }}">My Orders</a>
+        <a href="{{ url_for('auth.logout') }}">Logout</a>
+    </nav>
+</header>
+<h2>Place Order</h2>
+<form method="post">
+    Quantity: <input type="number" name="quantity" min="1" required>
+    <button type="submit">Order</button>
+</form>
+<a href="{{ url_for('menu_bp.all_menu') }}">Back to Menu</a>
+
+
+<section class="menu-section">
+    <h1>Place Your Order</h1>
+    
+    <div class="order-form">
+        <form action="{{ url_for('order_bp.place_order', product_id=product_id) }}" method="POST">
+            <label for="quantity">Quantity:</label>
+            <input type="number" name="quantity" id="quantity" value="1" min="1" required>
+            
+            <button type="submit" class="btn">Place Order</button>
+        </form>
+    </div>
+</section>
+<a href="{{ url_for('order_bp.place_order') }}">Order</a>
+</body>
+</html>

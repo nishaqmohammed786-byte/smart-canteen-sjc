@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment | Smart Canteen</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 400px;
+            background: white;
+            margin: 60px auto;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .row {
+            margin: 10px 0;
+            font-size: 16px;
+        }
+
+        .total {
+            font-size: 20px;
+            font-weight: bold;
+            color: green;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #27ae60;
+            border: none;
+            color: white;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        button:hover {
+            background: #219150;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>💳 Payment</h2>
+
+    <div class="row">
+        <strong>Order ID:</strong> {{ order.id }}
+    </div>
+
+    <div class="row total">
+        Total Amount: ₹ {{ order.total_amount }}
+    </div>
+
+    <form method="post">
+        <div class="row">
+            <input type="radio" checked> Cash / UPI (Demo)
+        </div>
+
+        <button type="submit">Confirm Payment</button>
+    </form>
+</div>
+
+</body>
+</html>
