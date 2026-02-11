@@ -2,117 +2,113 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Register | Smart Canteen</title>
-
-    <style>
-        body {
-            margin: 0;
-            height: 100vh;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #2c3e50, #4ca1af);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .register-card {
-            background: white;
-            width: 380px;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-        }
-
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #2c3e50;
-        }
-
-        label {
-            font-weight: bold;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            outline: none;
-        }
-
-        input:focus {
-            border-color: #4ca1af;
-        }
-
-        button {
-            width: 100%;
-            padding: 10px;
-            background: #27ae60;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #219150;
-        }
-
-        .error {
-            margin-bottom: 15px;
-            color: red;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        .footer {
-            margin-top: 15px;
-            text-align: center;
-            font-size: 14px;
-        }
-
-        .footer a {
-            color: #2c3e50;
-            font-weight: bold;
-            text-decoration: none;
-        }
-
-        .footer a:hover {
-            text-decoration: underline;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account | Smart Canteen</title>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Professional CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+<body class="auth-body">
 
-<body>
+<div class="auth-container">
+    <div class="auth-card">
+        <!-- Header with Icon -->
+        <div class="auth-header">
+            <div class="auth-icon">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <h2>Create Account</h2>
+            <p class="auth-subtitle">Join Smart Canteen today</p>
+        </div>
 
-<div class="register-card">
-    <h2>📝 Create Account</h2>
+        <!-- Error Messages -->
+        {% if error %}
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>{{ error }}</span>
+        </div>
+        {% endif %}
 
-    {% if error %}
-        <div class="error">{{ error }}</div>
-    {% endif %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category if category != 'message' else 'info' }}">
+                    <i class="fas fa-{% if category == 'success' %}check-circle{% else %}info-circle{% endif %}"></i>
+                    <span>{{ message }}</span>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
-    <form method="POST">
-        <label>Full Name</label>
-        <input type="text" name="name" placeholder="Enter your full name" required>
+        <!-- Registration Form -->
+        <form method="POST">
+            <div class="form-group">
+                <label for="name">
+                    <i class="fas fa-user" style="margin-right: 6px; color: var(--accent);"></i>
+                    Full Name
+                </label>
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    id="name" 
+                    name="name" 
+                    placeholder="Enter your full name" 
+                    required
+                    autofocus
+                >
+            </div>
 
-        <label>Email</label>
-        <input type="email" name="email" placeholder="Enter your email" required>
+            <div class="form-group">
+                <label for="email">
+                    <i class="fas fa-envelope" style="margin-right: 6px; color: var(--accent);"></i>
+                    Email Address
+                </label>
+                <input 
+                    type="email" 
+                    class="form-control" 
+                    id="email" 
+                    name="email" 
+                    placeholder="Enter your email" 
+                    required
+                >
+            </div>
 
-        <label>Password</label>
-        <input type="password" name="password" placeholder="Create a password" required>
+            <div class="form-group">
+                <label for="password">
+                    <i class="fas fa-lock" style="margin-right: 6px; color: var(--accent);"></i>
+                    Password
+                </label>
+                <input 
+                    type="password" 
+                    class="form-control" 
+                    id="password" 
+                    name="password" 
+                    placeholder="Create a password (min. 6 characters)" 
+                    required
+                >
+                <small style="display: block; margin-top: 6px; color: var(--gray-500); font-size: 0.8rem;">
+                    <i class="fas fa-info-circle"></i> Password must be at least 6 characters
+                </small>
+            </div>
 
-        <button type="submit">Register</button>
-    </form>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-user-plus"></i>
+                Create Account
+            </button>
+        </form>
 
-    <div class="footer">
-        Already have an account?
-        <a href="{{ url_for('auth_bp.login') }}">Login</a>
+        <!-- Footer with Login Link -->
+        <div class="auth-footer">
+            <p>
+                Already have an account? 
+                <a href="{{ url_for('auth_bp.login') }}">
+                    Sign in <i class="fas fa-arrow-right"></i>
+                </a>
+            </p>
+        </div>
     </div>
 </div>
 

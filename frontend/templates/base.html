@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Smart Canteen{% endblock %}</title>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Professional CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Toast Notification Container -->
+    <div id="toast-container"></div>
+    
+    <!-- Navbar -->
+    <header class="topbar">
+        <div class="logo">
+            <i class="fas fa-utensils" style="margin-right: 8px;"></i>
+            Smart Canteen
+        </div>
+        <div class="nav-links">
+            {% if session.get('user_id') %}
+                <span class="user-badge">
+                    <i class="fas fa-user-circle"></i>
+                    {{ session.get('user_name', 'User') }}
+                </span>
+                
+                {% if session.get('role') == 'admin' %}
+                    <!-- Admin Navigation -->
+                    <a href="/admin/dashboard" {% block admin_dashboard_active %}{% endblock %}>
+                        <i class="fas fa-chart-pie"></i> Dashboard
+                    </a>
+                    <a href="/admin/orders" {% block admin_orders_active %}{% endblock %}>
+                        <i class="fas fa-clipboard-list"></i> Orders
+                    </a>
+                {% else %}
+                    <!-- User Navigation -->
+                    <a href="{{ url_for('menu_bp.menu') }}" {% block menu_active %}{% endblock %}>
+                        <i class="fas fa-utensils"></i> Menu
+                    </a>
+                    <a href="{{ url_for('order_bp.my_orders') }}" {% block orders_active %}{% endblock %}>
+                        <i class="fas fa-clipboard-list"></i> My Orders
+                    </a>
+                {% endif %}
+                
+                <a href="{{ url_for('auth_bp.logout') }}" style="color: #ef4444;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            {% else %}
+                <!-- Guest Navigation -->
+                <a href="{{ url_for('auth_bp.login') }}" {% block login_active %}{% endblock %}>
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+                <a href="{{ url_for('auth_bp.register') }}" {% block register_active %}{% endblock %}>
+                    <i class="fas fa-user-plus"></i> Register
+                </a>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Flash Messages to Toast Converter - Moved to separate script to avoid Jinja2 confusion -->
+    <script id="flash-messages" type="application/json">
+        {{ get_flashed_messages(with_categories=true)|tojson|safe }}
+    </script>
+    
+    <script>
+        // ========== TOAST NOTIFICATION SYSTEM ==========
+        const Toast = {
+            // Show a toast message
+            show: function(message, type = 'success', duration = 3000) {
+                // Create toast element
+                const toast = document.createElement('div');
+                toast.className = `toast toast-${type}`;
+                
+                // Set icon based on type
+                let icon = 'info-circle';
+                if (type === 'success') icon = 'check-circle';
+                if (type === 'error') icon = 'exclamation-circle';
+                if (type === 'warning') icon = 'exclamation-triangle';
+                
+                toast.innerHTML = `
+                    <i class="fas fa-${icon}"></i>
+                    <span>${message}</span>
+                    <button class="toast-close" onclick="this.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                
+                // Add to container
+                const container = document.getElementById('toast-container');
+                container.appendChild(toast);
+                
+                // Auto remove after duration
+                setTimeout(() => {
+                    toast.style.animation = 'slideOut 0.3s ease';
+                    setTimeout(() => toast.remove(), 300);
+                }, duration);
+            },
+            
+            success: function(message) {
+                this.show(message, 'success');
+            },
+            
+            error: function(message) {
+                this.show(message, 'error');
+            },
+            
+            warning: function(message) {
+                this.show(message, 'warning');
+            },
+            
+            info: function(message) {
+                this.show(message, 'info');
+            }
+        };
+
+        // ========== LOADING STATE MANAGER ==========
+        const Loading = {
+            show: function(button) {
+                const btn = typeof button === 'string' ? document.querySelector(button) : button;
+                if (!btn) return;
+                
+                // Store original text
+                btn.dataset.originalText = btn.innerHTML;
+                
+                // Show loading state
+                btn.disabled = true;
+                btn.innerHTML = `
+                    <i class="fas fa-spinner fa-spin"></i>
+                    Processing...
+                `;
+            },
+            
+            hide: function(button) {
+                const btn = typeof button === 'string' ? document.querySelector(button) : button;
+                if (!btn) return;
+                
+                // Restore original text
+                btn.disabled = false;
+                btn.innerHTML = btn.dataset.originalText || 'Submit';
+            }
+        };
+
+        // ========== PROCESS FLASH MESSAGES ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                // Get flash messages from JSON script tag
+                const flashScript = document.getElementById('flash-messages');
+                if (flashScript) {
+                    const messages = JSON.parse(flashScript.textContent);
+                    messages.forEach(function(item) {
+                        const category = item[0];
+                        const message = item[1];
+                        
+                        if (category === 'success') {
+                            Toast.success(message);
+                        } else if (category === 'error' || category === 'danger') {
+                            Toast.error(message);
+                        } else if (category === 'warning') {
+                            Toast.warning(message);
+                        } else {
+                            Toast.info(message);
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error('Error parsing flash messages:', e);
+            }
+            
+            // Convert any existing alert divs to toasts
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                const message = alert.innerText.trim();
+                const className = alert.className;
+                
+                if (className.includes('alert-success')) {
+                    Toast.success(message);
+                } else if (className.includes('alert-error') || className.includes('alert-danger')) {
+                    Toast.error(message);
+                } else if (className.includes('alert-warning')) {
+                    Toast.warning(message);
+                } else {
+                    Toast.info(message);
+                }
+                alert.remove();
+            });
+        });
+
+        // ========== PAGE LOADER ==========
+        // Add page loader element
+        document.addEventListener('DOMContentLoaded', function() {
+            const loader = document.createElement('div');
+            loader.className = 'page-loader';
+            loader.style.display = 'none';
+            document.body.appendChild(loader);
+        });
+
+        // Show loader on link clicks
+        document.addEventListener('click', function(e) {
+            const link = e.target.closest('a');
+            if (link && link.href && !link.href.includes('#') && !link.hasAttribute('data-no-loader')) {
+                const loader = document.querySelector('.page-loader');
+                if (loader) {
+                    loader.style.display = 'block';
+                }
+            }
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

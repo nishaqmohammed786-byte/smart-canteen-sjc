@@ -1,130 +1,194 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Menu | Smart Canteen</title>
+{% extends "base.html" %}
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f4f6f8;
-        }
+{% block title %}Our Menu | Smart Canteen{% endblock %}
 
-        /* Navbar */
-        .navbar {
-            background: #2c3e50;
-            color: white;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+{% block menu_active %}style="color: var(--accent);"{% endblock %}
 
-        .navbar a {
-            color: white;
-            text-decoration: none;
-            margin-left: 20px;
-            font-weight: bold;
-        }
-
-        h1 {
-            text-align: center;
-            margin: 30px 0;
-        }
-
-        /* Menu Grid */
-        .menu-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 25px;
-            padding: 30px;
-            max-width: 1100px;
-            margin: auto;
-        }
-
-        .menu-card {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-            text-align: center;
-        }
-
-        .menu-card img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 8px;
-        }
-
-        .price {
-            color: green;
-            font-weight: bold;
-            font-size: 18px;
-        }
-
-        .btn {
-            margin-top: 10px;
-            padding: 8px 16px;
-            background: #27ae60;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .btn:hover {
-            background: #219150;
-        }
-
-        /* Empty message */
-        .empty {
-            text-align: center;
-            font-size: 18px;
-            color: #555;
-        }
-    </style>
-</head>
-
-<body>
-
-<!-- NAVBAR -->
-<div class="navbar">
-    <div><strong>🍔 Smart Canteen</strong></div>
-    <div>
-        <a href="/menu">Menu</a>
-        <a href="/logout">Logout</a>
-    </div>
-</div>
-
-<h1>🍽 Our Menu</h1>
-
-<!-- MENU ITEMS -->
-<div class="menu-container">
-
-    {% if products|length == 0 %}
-        <div class="empty">
-            😔 No food items available right now.
+{% block content %}
+<!-- Menu Section -->
+<section class="menu-section">
+    <!-- Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="fas fa-utensils" style="color: var(--accent); margin-right: 12px;"></i>
+                Today's Menu
+            </h1>
+            <p class="page-subtitle">
+                Freshly prepared • Hygienic • Delicious
+            </p>
         </div>
+        <div style="background: var(--accent-soft); padding: 0.75rem 1.5rem; border-radius: var(--radius-full);">
+            <i class="fas fa-clock" style="color: var(--accent); margin-right: 8px;"></i>
+            <span style="font-weight: 500;">Serving: 11:00 AM - 8:00 PM</span>
+        </div>
+    </div>
+
+    <!-- Menu Grid -->
+    {% if products|length == 0 %}
+    <div style="text-align: center; padding: 4rem 2rem; background: var(--white); border-radius: var(--radius-lg); border: 1px solid var(--gray-200);">
+        <i class="fas fa-utensil-spoon" style="font-size: 4rem; color: var(--gray-300); margin-bottom: 1.5rem;"></i>
+        <h3 style="color: var(--gray-700); margin-bottom: 0.75rem;">No Items Available</h3>
+        <p style="color: var(--gray-500); font-size: 1.1rem;">
+            😔 Our chefs are preparing something delicious. Check back soon!
+        </p>
+    </div>
     {% else %}
+    <div class="menu-grid">
         {% for product in products %}
         <div class="menu-card">
-            <img
-                src="{{ url_for('static', filename='images/' ~ (product.image or 'burger.jpg')) }}"
+            <img 
+                src="{{ url_for('static', filename='images/' ~ (product.image or 'burger.jpg')) }}" 
                 alt="{{ product.name }}"
+                class="menu-image"
+                onerror="this.src='https://via.placeholder.com/300x200?text=Food+Item'"
             >
-            <h3>{{ product.name }}</h3>
-            <p class="price">₹ {{ product.price }}</p>
-
-            <form action="/order/{{ product.id }}" method="post">
-                <button class="btn">Order Now</button>
-            </form>
+            <div class="menu-content">
+                <h3 class="menu-title">{{ product.name }}</h3>
+                
+                {% if product.description %}
+                <p class="menu-description">{{ product.description }}</p>
+                {% endif %}
+                
+                <div class="menu-price">₹ {{ product.price }}</div>
+                
+                <!-- FIXED: AJAX form with proper headers and data attributes -->
+                <form action="/order/{{ product.id }}" method="post" 
+                      class="order-form"
+                      data-product-id="{{ product.id }}"
+                      data-product-name="{{ product.name }}"
+                      data-product-price="{{ product.price }}"
+                      style="display: flex; gap: 10px; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <label for="quantity-{{ product.id }}" style="font-size: 0.9rem; color: var(--gray-600);">Qty:</label>
+                        <input 
+                            type="number" 
+                            id="quantity-{{ product.id }}" 
+                            name="quantity" 
+                            value="1" 
+                            min="1" 
+                            max="10"
+                            class="quantity-input"
+                            style="width: 70px;"
+                            required
+                        >
+                    </div>
+                    <button type="submit" class="add-to-cart order-btn">
+                        <i class="fas fa-shopping-cart"></i>
+                        Order
+                    </button>
+                </form>
+            </div>
         </div>
         {% endfor %}
+    </div>
     {% endif %}
+</section>
 
-</div>
-
-</body>
-</html>
+{% block extra_js %}
+<script>
+// ========== FIXED AJAX ORDER PLACEMENT ==========
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🍽️ Menu page loaded');
+    
+    // Get all order forms
+    const orderForms = document.querySelectorAll('.order-form');
+    console.log(`📦 Found ${orderForms.length} order forms`);
+    
+    // Add submit event listener to each form
+    orderForms.forEach(form => {
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const productId = this.dataset.productId;
+            const productName = this.dataset.productName;
+            const button = this.querySelector('.order-btn');
+            const quantity = this.querySelector('input[name="quantity"]').value;
+            
+            console.log(`🛒 Ordering: ${quantity}x ${productName} (ID: ${productId})`);
+            
+            // Show loading state
+            Loading.show(button);
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Placing...';
+            
+            try {
+                // Send AJAX request with proper headers
+                const response = await fetch(`/order/${productId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'  // CRITICAL: Marks as AJAX request
+                    },
+                    body: new URLSearchParams({
+                        'quantity': quantity
+                    })
+                });
+                
+                console.log(`📡 Response status: ${response.status}`);
+                
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    const data = await response.json();
+                    Loading.hide(button);
+                    button.innerHTML = '<i class="fas fa-shopping-cart"></i> Order';
+                    
+                    if (response.ok && data.success) {
+                        // SUCCESS!
+                        console.log('✅ Order success:', data);
+                        Toast.success(`✅ ${data.message}`);
+                        
+                        // Add animation
+                        button.style.background = '#10b981';
+                        setTimeout(() => {
+                            button.style.background = '';
+                        }, 500);
+                        
+                        // Reset quantity to 1
+                        this.querySelector('input[name="quantity"]').value = 1;
+                        
+                        // Ask if user wants to proceed to payment
+                        setTimeout(() => {
+                            if (confirm('🛒 Order placed! Go to payment now?')) {
+                                window.location.href = data.redirect;
+                            }
+                        }, 1000);
+                        
+                    } else {
+                        // ERROR from server
+                        console.error('❌ Order failed:', data);
+                        Toast.error(`❌ ${data.error || 'Failed to place order'}`);
+                        
+                        // If not logged in, redirect after 2 seconds
+                        if (response.status === 401) {
+                            setTimeout(() => {
+                                window.location.href = data.redirect || '/login';
+                            }, 2000);
+                        }
+                    }
+                } else {
+                    // Handle HTML response (should not happen with AJAX)
+                    const text = await response.text();
+                    Loading.hide(button);
+                    button.innerHTML = '<i class="fas fa-shopping-cart"></i> Order';
+                    console.error('❌ Received HTML instead of JSON:', text.substring(0, 100));
+                    Toast.error('❌ Server error. Please try again.');
+                }
+                
+            } catch (error) {
+                Loading.hide(button);
+                button.innerHTML = '<i class="fas fa-shopping-cart"></i> Order';
+                console.error('❌ Network error:', error);
+                Toast.error('❌ Network error. Please check your connection.');
+            }
+        });
+    });
+    
+    // Welcome toast
+    setTimeout(() => {
+        Toast.success('🍽️ Welcome! Ready to order?');
+    }, 500);
+});
+</script>
+{% endblock %}
+{% endblock %}

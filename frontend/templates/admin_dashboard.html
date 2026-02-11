@@ -2,106 +2,162 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | Smart Canteen</title>
-
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f4f6f8;
-        }
-
-        /* NAVBAR */
-        .navbar {
-            background: #2c3e50;
-            color: white;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .navbar a {
-            color: white;
-            text-decoration: none;
-            margin-left: 15px;
-            font-weight: bold;
-        }
-
-        /* DASHBOARD */
-        .container {
-            padding: 40px;
-            text-align: center;
-        }
-
-        h2 {
-            margin-bottom: 30px;
-        }
-
-        .cards {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            flex-wrap: wrap;
-        }
-
-        .card {
-            background: white;
-            width: 250px;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-        }
-
-        .card h3 {
-            margin-bottom: 10px;
-            color: #2c3e50;
-        }
-
-        .count {
-            font-size: 36px;
-            font-weight: bold;
-            color: #e67e22;
-        }
-
-        .btn {
-            margin-top: 15px;
-            display: inline-block;
-            padding: 10px 20px;
-            background: #27ae60;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-        }
-
-        .btn:hover {
-            background: #219150;
-        }
-    </style>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Professional CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-
 <body>
 
-<!-- NAVBAR -->
-<div class="navbar">
-    <div><strong>👨‍🍳 Admin Panel</strong></div>
-    <div>
-        <a href="/admin/dashboard">Dashboard</a>
-        <a href="/admin/orders">Orders</a>
-        <a href="/logout">Logout</a>
+<!-- Professional Admin Navbar -->
+<header class="topbar">
+    <div class="logo">
+        <i class="fas fa-crown" style="margin-right: 8px; color: #f59e0b;"></i>
+        Admin Panel
     </div>
-</div>
+    <div class="nav-links">
+        <a href="/admin/dashboard" style="color: var(--accent);">
+            <i class="fas fa-chart-pie"></i> Dashboard
+        </a>
+        <a href="/admin/orders">
+            <i class="fas fa-clipboard-list"></i> Orders
+        </a>
+        <a href="{{ url_for('auth_bp.logout') }}" style="color: #ef4444;">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+</header>
 
-<!-- CONTENT -->
-<div class="container">
-    <h2>Admin Dashboard</h2>
+<!-- Dashboard Content -->
+<div class="dashboard">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="fas fa-chart-line" style="color: var(--accent); margin-right: 12px;"></i>
+                Admin Dashboard
+            </h1>
+            <p class="page-subtitle">
+                Manage orders and monitor canteen operations
+            </p>
+        </div>
+        <div style="background: var(--accent-soft); padding: 0.75rem 1.5rem; border-radius: var(--radius-full);">
+            <i class="fas fa-calendar" style="color: var(--accent); margin-right: 8px;"></i>
+            <span style="font-weight: 500;">{{ current_time or 'Today' }}</span>
+        </div>
+    </div>
 
-    <div class="cards">
-        <div class="card">
-            <h3>Pending Orders</h3>
-            <!-- ✅ Comes from backend -->
-            <div class="count">{{ pending_count }}</div>
-            <a href="/admin/orders" class="btn">View Orders</a>
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <!-- Pending Orders Card -->
+        <div class="stat-card pending">
+            <div class="stat-info">
+                <h4>Pending Orders</h4>
+                <div class="stat-number">{{ pending_count }}</div>
+                <span style="color: var(--gray-500); font-size: 0.85rem;">Awaiting acceptance</span>
+            </div>
+            <div class="stat-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+        </div>
+
+        <!-- You can add more stat cards here as you add backend data -->
+        <div class="stat-card">
+            <div class="stat-info">
+                <h4>Total Orders</h4>
+                <div class="stat-number">{{ total_orders or '0' }}</div>
+                <span style="color: var(--gray-500); font-size: 0.85rem;">All time</span>
+            </div>
+            <div class="stat-icon">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-info">
+                <h4>Active Menu Items</h4>
+                <div class="stat-number">{{ menu_count or '0' }}</div>
+                <span style="color: var(--gray-500); font-size: 0.85rem;">Available now</span>
+            </div>
+            <div class="stat-icon">
+                <i class="fas fa-utensils"></i>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-info">
+                <h4>Revenue</h4>
+                <div class="stat-number">₹ {{ revenue or '0' }}</div>
+                <span style="color: var(--gray-500); font-size: 0.85rem;">Today</span>
+            </div>
+            <div class="stat-icon">
+                <i class="fas fa-rupee-sign"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+        <a href="/admin/orders" class="btn btn-primary">
+            <i class="fas fa-clipboard-list"></i>
+            View All Orders
+        </a>
+        <a href="#" class="btn btn-outline">
+            <i class="fas fa-chart-bar"></i>
+            View Reports
+        </a>
+    </div>
+
+    <!-- Recent Orders Preview -->
+    <div style="background: var(--white); border-radius: var(--radius-lg); padding: 1.5rem; border: 1px solid var(--gray-200);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3 style="display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-history" style="color: var(--accent);"></i>
+                Recent Orders
+            </h3>
+            <a href="/admin/orders" style="color: var(--accent); font-weight: 600;">
+                View All <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if recent_orders %}
+                        {% for order in recent_orders %}
+                        <tr>
+                            <td><strong>#{{ order.order_id }}</strong></td>
+                            <td>{{ order.user_name }}</td>
+                            <td><strong style="color: var(--accent);">₹ {{ order.total_amount }}</strong></td>
+                            <td>
+                                <span class="badge badge-{{ order.status|lower }}">
+                                    {{ order.status }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" style="text-align: center; padding: 2rem; color: var(--gray-500);">
+                                <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
+                                No orders yet
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

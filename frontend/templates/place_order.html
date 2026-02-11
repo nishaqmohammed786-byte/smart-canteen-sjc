@@ -2,40 +2,117 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Place Order - Smart Canteen</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Place Order | Smart Canteen</title>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Professional CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
 
-<!-- Navbar -->
-<header class="navbar">
-    <h2>Smart Canteen</h2>
-    <nav>
-        <a href="{{ url_for('menu_bp.all_menu') }}">Menu</a>
-        <a href="{{ url_for('order_bp.user_orders') }}">My Orders</a>
-        <a href="{{ url_for('auth.logout') }}">Logout</a>
-    </nav>
-</header>
-<h2>Place Order</h2>
-<form method="post">
-    Quantity: <input type="number" name="quantity" min="1" required>
-    <button type="submit">Order</button>
-</form>
-<a href="{{ url_for('menu_bp.all_menu') }}">Back to Menu</a>
-
-
-<section class="menu-section">
-    <h1>Place Your Order</h1>
-    
-    <div class="order-form">
-        <form action="{{ url_for('order_bp.place_order', product_id=product_id) }}" method="POST">
-            <label for="quantity">Quantity:</label>
-            <input type="number" name="quantity" id="quantity" value="1" min="1" required>
-            
-            <button type="submit" class="btn">Place Order</button>
-        </form>
+<!-- Professional Navbar -->
+<header class="topbar">
+    <div class="logo">
+        <i class="fas fa-utensils" style="margin-right: 8px;"></i>
+        Smart Canteen
     </div>
-</section>
-<a href="{{ url_for('order_bp.place_order') }}">Order</a>
+    <div class="nav-links">
+        <span class="user-badge">
+            <i class="fas fa-user-circle"></i>
+            {{ session.get('user_name', 'User') }}
+        </span>
+        <a href="{{ url_for('menu_bp.menu') }}">
+            <i class="fas fa-utensils"></i> Menu
+        </a>
+        <a href="{{ url_for('order_bp.my_orders') }}">
+            <i class="fas fa-clipboard-list"></i> My Orders
+        </a>
+        <a href="{{ url_for('auth_bp.logout') }}" style="color: #ef4444;">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+</header>
+
+<!-- Order Content -->
+<div class="dashboard" style="max-width: 600px;">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="fas fa-shopping-cart" style="color: var(--accent); margin-right: 12px;"></i>
+                Place Your Order
+            </h1>
+            <p class="page-subtitle">
+                Confirm quantity and proceed
+            </p>
+        </div>
+    </div>
+
+    <!-- Order Card -->
+    <div style="background: var(--white); border-radius: var(--radius-lg); padding: 2rem; border: 1px solid var(--gray-200); box-shadow: var(--shadow);">
+        
+        <!-- Product Info (if available from backend) -->
+        {% if product %}
+        <div style="display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--gray-200);">
+            <img 
+                src="{{ url_for('static', filename='images/' ~ (product.image or 'burger.jpg')) }}" 
+                alt="{{ product.name }}"
+                style="width: 80px; height: 80px; object-fit: cover; border-radius: var(--radius);"
+            >
+            <div>
+                <h3 style="margin-bottom: 0.5rem;">{{ product.name }}</h3>
+                <p style="color: var(--accent); font-weight: 700; font-size: 1.25rem;">₹ {{ product.price }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Order Form -->
+        <form action="{{ url_for('order_bp.place_order', product_id=product_id) }}" method="POST">
+            <div class="form-group">
+                <label for="quantity" style="font-size: 1rem; margin-bottom: 0.75rem;">
+                    <i class="fas fa-sort-numeric-up" style="color: var(--accent); margin-right: 8px;"></i>
+                    Select Quantity
+                </label>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <input 
+                        type="number" 
+                        class="form-control" 
+                        id="quantity" 
+                        name="quantity" 
+                        value="1" 
+                        min="1" 
+                        max="20"
+                        required
+                        style="width: 120px; text-align: center; font-size: 1.1rem;"
+                    >
+                    <span style="color: var(--gray-500);">Maximum: 20</span>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button type="submit" class="btn btn-primary" style="flex: 2;">
+                    <i class="fas fa-check-circle"></i>
+                    Confirm Order
+                </button>
+                <a href="{{ url_for('menu_bp.menu') }}" class="btn btn-outline" style="flex: 1;">
+                    <i class="fas fa-arrow-left"></i>
+                    Back
+                </a>
+            </div>
+        </form>
+
+        <!-- Additional Info -->
+        <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--gray-200);">
+            <div style="display: flex; align-items: center; gap: 1rem; color: var(--gray-600); font-size: 0.9rem;">
+                <i class="fas fa-info-circle" style="color: var(--accent);"></i>
+                <span>Your order will be prepared fresh. Estimated time: 15-20 minutes.</span>
+            </div>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

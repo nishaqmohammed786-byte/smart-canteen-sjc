@@ -2,28 +2,99 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>User Dashboard - Smart Canteen</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard | Smart Canteen</title>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Professional CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
 
-<header class="navbar">
-    <h2>Smart Canteen</h2>
-    <nav>
-        <a href="{{ url_for('menu_bp.all_menu') }}">Menu</a>
-        <a href="{{ url_for('order_bp.user_orders') }}">My Orders</a>
-        <a href="{{ url_for('auth.logout') }}">Logout</a>
-    </nav>
+<!-- Professional Navbar -->
+<header class="topbar">
+    <div class="logo">
+        <i class="fas fa-utensils" style="margin-right: 8px;"></i>
+        Smart Canteen
+    </div>
+    <div class="nav-links">
+        <span class="user-badge">
+            <i class="fas fa-user-circle"></i>
+            {{ user_name }}
+        </span>
+        <a href="{{ url_for('menu_bp.menu') }}">
+            <i class="fas fa-utensils"></i> Menu
+        </a>
+        <a href="{{ url_for('order_bp.my_orders') }}">
+            <i class="fas fa-clipboard-list"></i> My Orders
+        </a>
+        <a href="{{ url_for('auth_bp.logout') }}" style="color: #ef4444;">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
 </header>
 
-<section class="dashboard-section">
-    <h1>Welcome, {{ user_name }}!</h1>
-    <p>Check the menu or view your orders below.</p>
-    <div class="dashboard-buttons">
-        <a href="{{ url_for('menu_bp.all_menu') }}" class="btn">View Menu</a>
-        <a href="{{ url_for('order_bp.user_orders') }}" class="btn">My Orders</a>
+<!-- Dashboard Content -->
+<div class="dashboard">
+    <!-- Welcome Section -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                Welcome back, {{ user_name }}! 👋
+            </h1>
+            <p class="page-subtitle">
+                Ready to order your favorite meals?
+            </p>
+        </div>
     </div>
-</section>
+
+    <!-- Quick Actions -->
+    <div style="margin-bottom: 2.5rem;">
+        <h3 style="margin-bottom: 1.5rem; color: var(--gray-700);">
+            <i class="fas fa-bolt" style="color: var(--accent); margin-right: 10px;"></i>
+            Quick Actions
+        </h3>
+        <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+            <a href="{{ url_for('menu_bp.menu') }}" 
+               style="flex: 1; min-width: 200px; background: linear-gradient(145deg, #14b8a6, #0d9488);"
+               class="btn btn-primary">
+                <i class="fas fa-utensils" style="margin-right: 8px;"></i>
+                Browse Menu & Order
+            </a>
+            <a href="{{ url_for('order_bp.my_orders') }}" 
+               style="flex: 1; min-width: 200px; background: var(--gray-800);"
+               class="btn btn-secondary">
+                <i class="fas fa-history" style="margin-right: 8px;"></i>
+                View Order History
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Activity Placeholder -->
+    <div style="background: var(--white); border-radius: var(--radius-lg); padding: 2rem; border: 1px solid var(--gray-200);">
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+            <i class="fas fa-clock" style="font-size: 1.5rem; color: var(--accent);"></i>
+            <h3 style="margin: 0;">Recent Orders</h3>
+        </div>
+        
+        {% set has_recent_orders = False %} <!-- Replace with actual logic -->
+        {% if has_recent_orders %}
+            <!-- Order history table would go here -->
+        {% else %}
+            <div style="text-align: center; padding: 2rem;">
+                <i class="fas fa-shopping-cart" style="font-size: 3rem; color: var(--gray-300); margin-bottom: 1rem;"></i>
+                <p style="color: var(--gray-500); font-size: 1.1rem;">
+                    You haven't placed any orders yet.
+                </p>
+                <a href="{{ url_for('menu_bp.menu') }}" style="margin-top: 1rem; display: inline-block; color: var(--accent); font-weight: 600;">
+                    Order your first meal <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
 
 </body>
 </html>

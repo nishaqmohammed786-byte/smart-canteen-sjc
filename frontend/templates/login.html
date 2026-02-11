@@ -1,117 +1,156 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Login | Smart Canteen</title>
+{% extends "base.html" %}
 
-    <style>
-        body {
-            margin: 0;
-            height: 100vh;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #2c3e50, #4ca1af);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+{% block title %}Sign In | Smart Canteen{% endblock %}
 
-        .login-card {
-            background: white;
-            width: 350px;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-        }
+{% block login_active %}style="color: var(--accent);"{% endblock %}
 
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #2c3e50;
-        }
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <!-- Header with Icon -->
+        <div class="auth-header">
+            <div class="auth-icon">
+                <i class="fas fa-utensils"></i>
+            </div>
+            <h2>Welcome Back</h2>
+            <p class="auth-subtitle">Sign in to your Smart Canteen account</p>
+        </div>
 
-        label {
-            font-weight: bold;
-            display: block;
-            margin-bottom: 5px;
-        }
+        <!-- Error Messages - Converted to Toasts -->
+        {% if error %}
+        <div class="alert alert-error" style="display: none;">
+            {{ error }}
+        </div>
+        {% endif %}
 
-        input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            outline: none;
-        }
+        <!-- Flash Messages - Converted to Toasts -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category if category != 'message' else 'info' }}" style="display: none;">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
-        input:focus {
-            border-color: #4ca1af;
-        }
+        <!-- Login Form -->
+        <form method="POST" onsubmit="Loading.show(this.querySelector('button[type=submit]'))">
+            <div class="form-group">
+                <label for="email">
+                    <i class="fas fa-envelope" style="margin-right: 6px; color: var(--accent);"></i>
+                    Email Address
+                </label>
+                <input 
+                    type="email" 
+                    class="form-control" 
+                    id="email" 
+                    name="email" 
+                    placeholder="Enter your email" 
+                    value="{{ request.form.email if request.form.email }}"
+                    required
+                    autofocus
+                >
+            </div>
 
-        button {
-            width: 100%;
-            padding: 10px;
-            background: #27ae60;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-        }
+            <div class="form-group">
+                <label for="password">
+                    <i class="fas fa-lock" style="margin-right: 6px; color: var(--accent);"></i>
+                    Password
+                </label>
+                <input 
+                    type="password" 
+                    class="form-control" 
+                    id="password" 
+                    name="password" 
+                    placeholder="Enter your password" 
+                    required
+                >
+            </div>
 
-        button:hover {
-            background: #219150;
-        }
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <div style="display: flex; align-items: center;">
+                    <input type="checkbox" id="remember" name="remember" style="width: auto; margin-right: 8px;">
+                    <label for="remember" style="margin: 0; font-weight: normal; font-size: 0.9rem;">Remember me</label>
+                </div>
+                <a href="#" style="color: var(--accent); font-size: 0.9rem; text-decoration: none;">
+                    Forgot password?
+                </a>
+            </div>
 
-        .error {
-            margin-top: 10px;
-            color: red;
-            text-align: center;
-            font-weight: bold;
-        }
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-sign-in-alt"></i>
+                Sign In
+            </button>
+        </form>
 
-        .footer {
-            margin-top: 15px;
-            text-align: center;
-            font-size: 14px;
-        }
-
-        .footer a {
-            color: #2c3e50;
-            font-weight: bold;
-            text-decoration: none;
-        }
-
-        .footer a:hover {
-            text-decoration: underline;
-        }
-    </style>
-</head>
-
-<body>
-
-<div class="login-card">
-    <h2>🔐 Login</h2>
-
-    <form method="POST">
-        <label>Email</label>
-        <input type="email" name="email" placeholder="Enter your email" required>
-
-        <label>Password</label>
-        <input type="password" name="password" placeholder="Enter your password" required>
-
-        <button type="submit">Login</button>
-    </form>
-
-    {% if error %}
-        <div class="error">{{ error }}</div>
-    {% endif %}
-
-    <div class="footer">
-        Don’t have an account?
-        <a href="{{ url_for('auth_bp.register') }}">Register</a>
+        <!-- Footer with Register Link -->
+        <div class="auth-footer">
+            <p>
+                Don't have an account? 
+                <a href="{{ url_for('auth_bp.register') }}">
+                    Create account <i class="fas fa-arrow-right"></i>
+                </a>
+            </p>
+            <p style="margin-top: 1rem; font-size: 0.8rem; color: var(--gray-400);">
+                <i class="fas fa-shield-alt"></i> Demo: admin@canteen.com / admin123
+            </p>
+        </div>
     </div>
 </div>
 
-</body>
-</html>
+{% block extra_js %}
+<script>
+// Convert all alerts to toast notifications
+document.addEventListener('DOMContentLoaded', function() {
+    // Check for error parameter in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const error = urlParams.get('error');
+    
+    if (error === 'session_expired') {
+        Toast.warning('⏰ Your session has expired. Please login again.');
+    } else if (error === 'unauthorized') {
+        Toast.error('🔒 Please login to access this page.');
+    } else if (error === 'invalid_credentials') {
+        Toast.error('❌ Invalid email or password. Please try again.');
+    } else if (error === 'account_locked') {
+        Toast.error('🔐 Account locked. Please contact support.');
+    }
+    
+    // Show flash messages as toasts
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        const message = alert.innerText.trim();
+        const className = alert.className;
+        
+        if (className.includes('alert-success')) {
+            Toast.success(message);
+        } else if (className.includes('alert-error') || className.includes('alert-danger')) {
+            Toast.error(message);
+        } else if (className.includes('alert-warning')) {
+            Toast.warning(message);
+        } else {
+            Toast.info(message);
+        }
+        alert.remove();
+    });
+    
+    // Auto-focus email field
+    document.getElementById('email').focus();
+    
+    // Add demo credentials helper (optional)
+    console.log('Demo: admin@canteen.com / admin123');
+});
+
+// Add keyboard shortcut for demo login (Ctrl/Cmd + D)
+document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+        e.preventDefault();
+        document.getElementById('email').value = 'admin@canteen.com';
+        document.getElementById('password').value = 'admin123';
+        Toast.info('🔑 Demo credentials filled! Click Sign In.');
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}

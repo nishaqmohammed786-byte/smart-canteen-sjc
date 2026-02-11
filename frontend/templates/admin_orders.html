@@ -1,112 +1,508 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Admin Orders | Smart Canteen</title>
+{% extends "base.html" %}
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f8;
-            margin: 0;
-        }
+{% block title %}Manage Orders | Smart Canteen Admin{% endblock %}
 
-        h2 {
-            text-align: center;
-            margin: 25px 0;
-        }
+{% block admin_orders_active %}style="color: var(--accent);"{% endblock %}
 
-        table {
-            width: 90%;
-            margin: auto;
-            border-collapse: collapse;
-            background: white;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
+{% block content %}
+<!-- Orders Management Content -->
+<div class="dashboard">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="fas fa-clipboard-list" style="color: var(--accent); margin-right: 12px;"></i>
+                Order Management
+            </h1>
+            <p class="page-subtitle">
+                View and process customer orders in real-time
+            </p>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+            <span style="background: var(--accent-soft); padding: 0.75rem 1.5rem; border-radius: var(--radius-full);" id="order-count-badge">
+                <i class="fas fa-clock" style="color: #f59e0b; margin-right: 8px;"></i>
+                <span style="font-weight: 600;">{{ orders|length }}</span> Total Orders
+            </span>
+            <span id="live-indicator" style="background: #10b981; color: white; padding: 0.75rem 1.5rem; border-radius: var(--radius-full); display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-circle" style="font-size: 0.6rem; animation: pulse 1.5s infinite;"></i>
+                LIVE
+            </span>
+        </div>
+    </div>
 
-        th, td {
-            padding: 12px;
-            border: 1px solid #ddd;
-            text-align: center;
-        }
+    <!-- Filters -->
+    <div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
+        <button class="btn btn-outline filter-btn active" data-status="all" style="background: var(--white);">
+            <i class="fas fa-list"></i> All Orders
+        </button>
+        <button class="btn btn-outline filter-btn" data-status="PAID" style="background: var(--white);">
+            <i class="fas fa-hourglass-half"></i> Pending
+        </button>
+        <button class="btn btn-outline filter-btn" data-status="ACCEPTED" style="background: var(--white);">
+            <i class="fas fa-check-circle"></i> Accepted
+        </button>
+        <button class="btn btn-outline filter-btn" data-status="COMPLETED" style="background: var(--white);">
+            <i class="fas fa-check-double"></i> Completed
+        </button>
+        <button class="btn btn-outline filter-btn" data-status="REJECTED" style="background: var(--white);">
+            <i class="fas fa-times-circle"></i> Rejected
+        </button>
+    </div>
 
-        th {
-            background: #2c3e50;
-            color: white;
-        }
-
-        .status-PENDING { color: orange; font-weight: bold; }
-        .status-PAID { color: blue; font-weight: bold; }
-        .status-ACCEPTED { color: green; font-weight: bold; }
-        .status-REJECTED { color: red; font-weight: bold; }
-
-        a.btn {
-            padding: 6px 12px;
-            text-decoration: none;
-            color: white;
-            border-radius: 4px;
-            font-size: 14px;
-            margin: 0 3px;
-            display: inline-block;
-        }
-
-        .accept { background: #27ae60; }
-        .reject { background: #e74c3c; }
-        .disabled { color: #777; }
-
-        .top-nav {
-            text-align: center;
-            margin-bottom: 15px;
-        }
-
-        .top-nav a {
-            margin: 0 10px;
-            text-decoration: none;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-    </style>
-</head>
-
-<body>
-
-<div class="top-nav">
-    <a href="/admin/dashboard">🏠 Dashboard</a>
-    <a href="/logout">🚪 Logout</a>
+    <!-- Orders Table -->
+    <div class="table-container">
+        <table class="table" id="orders-table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Items</th>
+                    <th>Total Amount</th>
+                    <th>Status</th>
+                    <th>Order Time</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="orders-tbody">
+                {% if orders|length == 0 %}
+                <tr id="no-orders-row">
+                    <td colspan="7" style="text-align: center; padding: 3rem;">
+                        <i class="fas fa-inbox" style="font-size: 3rem; color: var(--gray-300); margin-bottom: 1rem; display: block;"></i>
+                        <p style="color: var(--gray-500); font-size: 1.1rem;">No orders found</p>
+                    </td>
+                </tr>
+                {% else %}
+                    {% for order in orders %}
+                    <tr id="order-{{ order.order_id }}" class="order-row" data-status="{{ order.status }}">
+                        <td>
+                            <strong style="color: var(--accent);">#{{ order.order_id }}</strong>
+                        </td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-user-circle" style="color: var(--gray-400);"></i>
+                                <span>{{ order.user_name }}</span>
+                            </div>
+                        </td>
+                        <td>
+    {% if order.items_count and order.items_count > 0 %}
+        <span class="items-count">{{ order.items_count }} item(s)</span>
+        <div style="font-size: 0.8rem; color: var(--gray-500); margin-top: 4px;">
+            {# FIXED: Use items_display field that's guaranteed to be a string #}
+            {% set items_str = order['items_display'] if order['items_display'] is not none and order['items_display'] != '' else '' %}
+            {% if items_str %}
+                {{ items_str[:50] }}{% if items_str|length > 50 %}...{% endif %}
+            {% else %}
+                -
+            {% endif %}
+        </div>
+    {% else %}
+        -
+    {% endif %}
+</td>
+                        <td>
+                            <strong style="color: var(--gray-900); font-size: 1.1rem;">₹ {{ order.total_amount }}</strong>
+                        </td>
+                        <td>
+                            <span class="badge badge-{{ order.status|lower }} status-badge">
+                                {{ order.status }}
+                            </span>
+                        </td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 6px; color: var(--gray-600);">
+                                <i class="fas fa-clock" style="font-size: 0.85rem;"></i>
+                                <span>{% if order.order_time %}{{ order.order_time.strftime('%H:%M, %d %b') }}{% else %}Just now{% endif %}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 8px; justify-content: center;">
+                                {% if order.status == 'PAID' %}
+                                    <button onclick="updateOrderStatus('{{ order.order_id }}', 'accept')" 
+                                       class="btn btn-primary" 
+                                       style="padding: 0.5rem 1.2rem; font-size: 0.9rem; background: #10b981;">
+                                        <i class="fas fa-check"></i>
+                                        Accept
+                                    </button>
+                                    <button onclick="updateOrderStatus('{{ order.order_id }}', 'reject')" 
+                                       class="btn btn-primary" 
+                                       style="padding: 0.5rem 1.2rem; font-size: 0.9rem; background: #ef4444;">
+                                        <i class="fas fa-times"></i>
+                                        Reject
+                                    </button>
+                                {% elif order.status == 'ACCEPTED' %}
+                                    <button onclick="updateOrderStatus('{{ order.order_id }}', 'complete')" 
+                                       class="btn btn-primary" 
+                                       style="padding: 0.5rem 1.2rem; font-size: 0.9rem; background: #3b82f6;">
+                                        <i class="fas fa-check-double"></i>
+                                        Complete
+                                    </button>
+                                {% else %}
+                                    <span style="color: var(--gray-400); padding: 0.5rem;">
+                                        <i class="fas fa-lock"></i> No action
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
-<h2>📋 All Orders</h2>
+<!-- Socket.IO Client Library -->
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 
-<table>
-    <tr>
-        <th>Order ID</th>
-        <th>User</th>
-        <th>Total Amount</th>
-        <th>Status</th>
-        <th>Action</th>
-    </tr>
+<!-- Store orders data as JSON -->
+<script id="orders-data" type="application/json">
+    {
+        "orders": [
+            {% for order in orders %}
+            {
+                "order_id": {{ order.order_id }},
+                "user_name": "{{ order.user_name|replace('"', '\\"') }}",
+                "total_amount": {{ order.total_amount }},
+                "status": "{{ order.status }}",
+                "order_time": "{{ order.order_time.isoformat() if order.order_time else '' }}",
+                "items_count": {{ order.items_count or 0 }},
+                "items": "{{ order['items']|replace('"', '\\"')|replace('\n', ' ')|replace('\r', '') if order['items'] else '' }}"
+            }{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ]
+    }
+</script>
 
-    {% for order in orders %}
-    <tr>
-        <td>{{ order.order_id }}</td>
-        <td>{{ order.user_name }}</td>
-        <td>₹ {{ order.total_amount }}</td>
+<script>
+// ========== REAL-TIME ORDER UPDATES ==========
+let socket;
 
-        <td class="status-{{ order.status }}">
-            {{ order.status }}
-        </td>
+document.addEventListener('DOMContentLoaded', function() {
+    // Parse initial orders data
+    try {
+        const ordersData = JSON.parse(document.getElementById('orders-data').textContent);
+        console.log(`📊 Loaded ${ordersData.orders.length} orders`);
+    } catch (e) {
+        console.log('No initial orders data');
+    }
+    
+    // Connect to Socket.IO server
+    socket = io();
+    
+    // Connection established
+    socket.on('connect', function() {
+        console.log('🔌 Connected to real-time server');
+        socket.emit('join_admin_room');
+        Toast.success('🟢 Real-time updates connected');
+    });
+    
+    // New order notification
+    socket.on('new_order', function(data) {
+        console.log('🆕 New order received:', data);
+        
+        // Play notification sound
+        playNotificationSound();
+        
+        // Show toast notification
+        Toast.success(`🔔 New Order #${data.order_id} - ₹${data.total_amount} from ${data.user_name}`);
+        
+        // Add new row to table
+        addNewOrderRow(data);
+        
+        // Update order count
+        updateOrderCount();
+    });
+    
+    // Order status updated
+    socket.on('order_status_updated', function(data) {
+        console.log('📝 Order status updated:', data);
+        
+        // Update status badge in table
+        updateOrderStatusBadge(data.order_id, data.status);
+        
+        // Show toast notification
+        Toast.info(`📦 Order #${data.order_id} status changed to ${data.status}`);
+    });
+    
+    // Disconnection
+    socket.on('disconnect', function() {
+        console.log('🔌 Disconnected from real-time server');
+        Toast.warning('⚠️ Real-time updates disconnected');
+    });
+});
 
+// ========== PLAY NOTIFICATION SOUND ==========
+function playNotificationSound() {
+    try {
+        const audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
+        audio.volume = 0.3;
+        audio.play().catch(e => console.log('Audio play failed:', e));
+    } catch (e) {
+        console.log('Audio not supported');
+    }
+}
+
+// ========== UPDATE ORDER STATUS ==========
+function updateOrderStatus(orderId, action) {
+    // Get the button that was clicked
+    const button = event.currentTarget;
+    const originalText = button.innerHTML;
+    const row = document.getElementById(`order-${orderId}`);
+    
+    console.log(`📝 Updating order #${orderId} with action: ${action}`);
+    
+    // Show loading state
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    
+    // Send AJAX request
+    fetch(`/admin/${action}/${orderId}`, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => {
+        console.log(`📡 Response status: ${response.status}`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return response.json();
+        } else {
+            throw new Error('Server returned non-JSON response');
+        }
+    })
+    .then(data => {
+        // Reset button
+        button.disabled = false;
+        button.innerHTML = originalText;
+        
+        if (data.success) {
+            // Success!
+            Toast.success(`✅ ${data.message || `Order #${orderId} ${action}ed successfully`}`);
+            
+            // Update the row
+            if (row) {
+                // Update status badge
+                row.setAttribute('data-status', data.status);
+                const statusBadge = row.querySelector('.status-badge');
+                if (statusBadge) {
+                    statusBadge.className = `badge badge-${data.status.toLowerCase()}`;
+                    statusBadge.textContent = data.status;
+                }
+                
+                // Update action buttons based on new status
+                updateActionButtons(row, data.status);
+            }
+        } else {
+            // Server returned error
+            Toast.error(`❌ ${data.error || `Failed to ${action} order`}`);
+        }
+    })
+    .catch(error => {
+        // Network or parsing error
+        console.error('❌ Error:', error);
+        button.disabled = false;
+        button.innerHTML = originalText;
+        Toast.error('❌ Network error. Please try again.');
+    });
+}
+
+// ========== UPDATE ACTION BUTTONS ==========
+function updateActionButtons(row, status) {
+    const actionsCell = row.querySelector('td:last-child');
+    if (!actionsCell) return;
+    
+    const orderId = row.id.replace('order-', '');
+    
+    if (status === 'PAID') {
+        actionsCell.innerHTML = `
+            <div style="display: flex; gap: 8px; justify-content: center;">
+                <button onclick="updateOrderStatus('${orderId}', 'accept')" 
+                   class="btn btn-primary" 
+                   style="padding: 0.5rem 1.2rem; font-size: 0.9rem; background: #10b981;">
+                    <i class="fas fa-check"></i>
+                    Accept
+                </button>
+                <button onclick="updateOrderStatus('${orderId}', 'reject')" 
+                   class="btn btn-primary" 
+                   style="padding: 0.5rem 1.2rem; font-size: 0.9rem; background: #ef4444;">
+                    <i class="fas fa-times"></i>
+                    Reject
+                </button>
+            </div>
+        `;
+    } else if (status === 'ACCEPTED') {
+        actionsCell.innerHTML = `
+            <div style="display: flex; gap: 8px; justify-content: center;">
+                <button onclick="updateOrderStatus('${orderId}', 'complete')" 
+                   class="btn btn-primary" 
+                   style="padding: 0.5rem 1.2rem; font-size: 0.9rem; background: #3b82f6;">
+                    <i class="fas fa-check-double"></i>
+                    Complete
+                </button>
+            </div>
+        `;
+    } else {
+        actionsCell.innerHTML = `
+            <span style="color: var(--gray-400); padding: 0.5rem;">
+                <i class="fas fa-lock"></i> No action
+            </span>
+        `;
+    }
+}
+
+// ========== ADD NEW ORDER ROW ==========
+function addNewOrderRow(data) {
+    const tbody = document.getElementById('orders-tbody');
+    const noOrdersRow = document.getElementById('no-orders-row');
+    
+    // Remove "no orders" row if exists
+    if (noOrdersRow) {
+        noOrdersRow.remove();
+    }
+    
+    // Create new row
+    const newRow = document.createElement('tr');
+    newRow.id = `order-${data.order_id}`;
+    newRow.className = 'order-row';
+    newRow.setAttribute('data-status', data.status || 'PAID');
+    newRow.style.animation = 'highlight 2s ease';
+    
+    newRow.innerHTML = `
         <td>
-            {% if order.status == 'PAID' %}
-                <a class="btn accept" href="/admin/accept/{{ order.order_id }}">Accept</a>
-                <a class="btn reject" href="/admin/reject/{{ order.order_id }}">Reject</a>
-            {% else %}
-                <span class="disabled">—</span>
-            {% endif %}
+            <strong style="color: var(--accent);">#${data.order_id}</strong>
         </td>
-    </tr>
-    {% endfor %}
-</table>
+        <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-user-circle" style="color: var(--gray-400);"></i>
+                <span>${data.user_name || 'Customer'}</span>
+            </div>
+        </td>
+        <td>
+            <span class="items-count">${data.quantity || 1} item(s)</span>
+            <div style="font-size: 0.8rem; color: var(--gray-500); margin-top: 4px;">
+                ${data.product_name || 'Food item'}
+            </div>
+        </td>
+        <td>
+            <strong style="color: var(--gray-900); font-size: 1.1rem;">₹ ${data.total_amount}</strong>
+        </td>
+        <td>
+            <span class="badge badge-paid status-badge">PAID</span>
+        </td>
+        <td>
+            <div style="display: flex; align-items: center; gap: 6px; color: var(--gray-600);">
+                <i class="fas fa-clock" style="font-size: 0.85rem;"></i>
+                <span>Just now</span>
+            </div>
+        </td>
+        <td>
+            <div style="display: flex; gap: 8px; justify-content: center;">
+                <button onclick="updateOrderStatus('${data.order_id}', 'accept')" 
+                   class="btn btn-primary" 
+                   style="padding: 0.5rem 1.2rem; font-size: 0.9rem; background: #10b981;">
+                    <i class="fas fa-check"></i>
+                    Accept
+                </button>
+                <button onclick="updateOrderStatus('${data.order_id}', 'reject')" 
+                   class="btn btn-primary" 
+                   style="padding: 0.5rem 1.2rem; font-size: 0.9rem; background: #ef4444;">
+                    <i class="fas fa-times"></i>
+                    Reject
+                </button>
+            </div>
+        </td>
+    `;
+    
+    // Add to beginning of table
+    tbody.insertBefore(newRow, tbody.firstChild);
+}
 
-</body>
-</html>
+// ========== UPDATE ORDER COUNT ==========
+function updateOrderCount() {
+    const countBadge = document.querySelector('#order-count-badge span');
+    if (countBadge) {
+        let count = parseInt(countBadge.textContent) || 0;
+        countBadge.textContent = count + 1;
+    }
+}
+
+// ========== UPDATE ORDER STATUS BADGE ==========
+function updateOrderStatusBadge(orderId, status) {
+    const row = document.getElementById(`order-${orderId}`);
+    if (row) {
+        row.setAttribute('data-status', status);
+        const statusBadge = row.querySelector('.status-badge');
+        if (statusBadge) {
+            statusBadge.className = `badge badge-${status.toLowerCase()}`;
+            statusBadge.textContent = status;
+        }
+    }
+}
+
+// ========== FILTER ORDERS ==========
+document.addEventListener('DOMContentLoaded', function() {
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Remove active class from all filters
+            filterButtons.forEach(b => {
+                b.classList.remove('active');
+                b.style.background = 'var(--white)';
+            });
+            
+            // Add active class to clicked filter
+            this.classList.add('active');
+            this.style.background = 'var(--accent-soft)';
+            
+            const status = this.dataset.status;
+            const rows = document.querySelectorAll('.order-row');
+            
+            rows.forEach(row => {
+                if (status === 'all' || row.dataset.status === status) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    });
+});
+
+// ========== HIGHLIGHT ANIMATION ==========
+(function() {
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes highlight {
+            0% { background-color: rgba(20, 184, 166, 0.2); }
+            100% { background-color: transparent; }
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+        @keyframes pulse-bg {
+            0% { opacity: 1; }
+            50% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+        .filter-btn.active {
+            background: var(--accent-soft) !important;
+            border-color: var(--accent) !important;
+            color: var(--accent) !important;
+        }
+        #live-indicator {
+            animation: pulse-bg 2s infinite;
+        }
+    `;
+    document.head.appendChild(style);
+})();
+</script>
+{% endblock %}

@@ -2,63 +2,112 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Payment Successful</title>
-
-    <meta http-equiv="refresh" content="3;url=/my-orders">
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f8;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        .box {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-            width: 350px;
-        }
-
-        .icon {
-            font-size: 50px;
-            color: green;
-        }
-
-        h2 {
-            margin: 10px 0;
-            color: #2c3e50;
-        }
-
-        p {
-            color: #555;
-        }
-
-        a {
-            display: inline-block;
-            margin-top: 15px;
-            text-decoration: none;
-            color: #3498db;
-            font-weight: bold;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful | Smart Canteen</title>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Professional CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- Auto-redirect after 3 seconds -->
+    <meta http-equiv="refresh" content="3;url={{ url_for('order_bp.my_orders') }}">
 </head>
+<body style="background: linear-gradient(135deg, #059669 0%, #10b981 100%);">
 
-<body>
-
-<div class="box">
-    <div class="icon">✅</div>
-    <h2>Payment Successful</h2>
-    <p>Your payment was completed successfully.</p>
-    <p>You will be redirected to <strong>My Orders</strong> in 3 seconds.</p>
-    <a href="/my-orders">Go now</a>
+<div class="auth-container" style="max-width: 450px;">
+    <div class="auth-card" style="text-align: center; padding: 3rem 2rem;">
+        <!-- Success Animation -->
+        <div style="margin-bottom: 1.5rem;">
+            <div style="background: #dcfce7; width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; animation: pulse 2s infinite;">
+                <i class="fas fa-check-circle" style="font-size: 3.5rem; color: #059669;"></i>
+            </div>
+        </div>
+        
+        <!-- Success Message -->
+        <h2 style="color: #059669; margin-bottom: 1rem; font-size: 2rem;">
+            Payment Successful!
+        </h2>
+        
+        <p style="color: var(--gray-600); font-size: 1.1rem; margin-bottom: 1.5rem; line-height: 1.6;">
+            Your payment of <strong style="color: var(--accent);">₹ {{ order.total_amount if order else '0' }}</strong> has been processed successfully.
+        </p>
+        
+        <!-- Order ID -->
+        {% if order %}
+        <div style="background: var(--gray-50); padding: 1rem; border-radius: var(--radius); margin-bottom: 2rem; border: 1px solid var(--gray-200);">
+            <span style="color: var(--gray-500); font-size: 0.9rem;">Order Reference</span>
+            <div style="font-size: 1.25rem; font-weight: 700; color: var(--gray-800); letter-spacing: 1px;">
+                #{{ order.id }}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Redirect Message -->
+        <div style="margin-bottom: 2rem;">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; color: var(--gray-500); margin-bottom: 1rem;">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>Redirecting to your orders in <span id="countdown" style="font-weight: 700; color: var(--accent);">3</span> seconds...</span>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div style="width: 100%; height: 6px; background: var(--gray-200); border-radius: var(--radius-full); overflow: hidden;">
+                <div id="progress-bar" style="width: 0%; height: 100%; background: var(--accent-gradient); transition: width 3s linear;"></div>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <a href="{{ url_for('order_bp.my_orders') }}" class="btn btn-primary" style="width: auto; padding: 0.85rem 2rem;">
+                <i class="fas fa-clipboard-list"></i>
+                View My Orders
+            </a>
+            <a href="{{ url_for('menu_bp.menu') }}" class="btn btn-outline" style="width: auto; padding: 0.85rem 2rem;">
+                <i class="fas fa-utensils"></i>
+                Order More
+            </a>
+        </div>
+    </div>
 </div>
+
+<!-- Countdown Timer Script -->
+<script>
+    // Countdown timer for redirect
+    let seconds = 3;
+    const countdownEl = document.getElementById('countdown');
+    const progressBar = document.getElementById('progress-bar');
+    
+    // Start progress bar animation
+    setTimeout(() => {
+        progressBar.style.width = '100%';
+    }, 100);
+    
+    const timer = setInterval(() => {
+        seconds--;
+        if (countdownEl) {
+            countdownEl.textContent = seconds;
+        }
+        
+        if (seconds <= 0) {
+            clearInterval(timer);
+        }
+    }, 1000);
+</script>
+
+<style>
+    @keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.4);
+        }
+        70% {
+            box-shadow: 0 0 0 20px rgba(5, 150, 105, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(5, 150, 105, 0);
+        }
+    }
+</style>
 
 </body>
 </html>
