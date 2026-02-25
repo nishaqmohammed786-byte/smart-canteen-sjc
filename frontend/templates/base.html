@@ -3,13 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Smart Canteen{% endblock %}</title>
+    <title>{% block title %}SJC Smart Canteen{% endblock %}</title>
     
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
+    <!-- Google Fonts - Restaurant style -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <!-- Professional CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <style>
+       :root {
+    --sjc-blue: #1a3a6e;  /* Deeper blue for Trichy */
+    --sjc-gold: #c9a227;  /* Rich gold */
+    --sjc-red: #b22222;   /* Optional accent */
+    --sjc-light: #f8f9fa;
+    --food-overlay: linear-gradient(135deg, rgba(26,58,110,0.85) 0%, rgba(0,0,0,0.7) 100%);
+}
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--sjc-light);
+        }
+        
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        /* Food-themed navbar */
+        .topbar {
+            background: var(--sjc-blue);
+            border-bottom: 3px solid var(--sjc-gold);
+        }
+        
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 1.8rem;
+            background: linear-gradient(145deg, #ffffff, #e0e0e0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .logo i {
+            color: var(--sjc-gold);
+            -webkit-text-fill-color: var(--sjc-gold);
+        }
+        
+        /* Food pattern background for sections */
+        .food-pattern {
+            position: relative;
+            background-image: url("{{ url_for('static', filename='images/pattern.png') }}");
+            background-repeat: repeat;
+            background-size: 200px;
+        }
+        
+        .food-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--food-overlay);
+            z-index: 1;
+        }
+        
+        .content-overlay {
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* SJC Badge */
+        .sjc-badge {
+            background: var(--sjc-gold);
+            color: var(--sjc-blue);
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            display: inline-block;
+        }
+    </style>
     
     {% block extra_css %}{% endblock %}
 </head>
@@ -17,15 +94,15 @@
     <!-- Toast Notification Container -->
     <div id="toast-container"></div>
     
-    <!-- Navbar -->
+    <!-- Navbar with SJC branding -->
     <header class="topbar">
         <div class="logo">
-            <i class="fas fa-utensils" style="margin-right: 8px;"></i>
-            Smart Canteen
+            <i class="fas fa-utensils"></i>
+            SJC <span style="color: var(--sjc-gold);">Canteen</span>
         </div>
         <div class="nav-links">
             {% if session.get('user_id') %}
-                <span class="user-badge">
+                <span class="user-badge" style="background: rgba(255,255,255,0.1);">
                     <i class="fas fa-user-circle"></i>
                     {{ session.get('user_name', 'User') }}
                 </span>
@@ -48,7 +125,7 @@
                     </a>
                 {% endif %}
                 
-                <a href="{{ url_for('auth_bp.logout') }}" style="color: #ef4444;">
+                <a href="{{ url_for('auth_bp.logout') }}" style="color: #ff6b6b;">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
             {% else %}
@@ -68,24 +145,43 @@
         {% block content %}{% endblock %}
     </main>
 
+    <!-- Footer with SJC info -->
+    <footer style="background: var(--sjc-blue); color: white; padding: 2rem; text-align: center; margin-top: 3rem;">
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem;">
+                <div>
+                    <h3 style="color: var(--sjc-gold); font-size: 1.5rem;">SJC Canteen</h3>
+                    <p>St. Joseph's College</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Bangalore, India</p>
+                </div>
+                <div>
+                    <span class="sjc-badge">ESTB. 1882</span>
+                </div>
+                <div>
+                    <p><i class="fas fa-clock"></i> Mon-Sat: 8:00 AM - 8:00 PM</p>
+                    <p><i class="fas fa-phone"></i> +91 80 1234 5678</p>
+                </div>
+            </div>
+            <hr style="border-color: rgba(255,255,255,0.1); margin: 2rem 0;">
+            <p style="color: rgba(255,255,255,0.6);">© 2026 St. Joseph's College Canteen. All rights reserved.</p>
+        </div>
+    </footer>
+
     <!-- JavaScript -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
-    <!-- Flash Messages to Toast Converter - Moved to separate script to avoid Jinja2 confusion -->
+    <!-- Flash Messages to Toast Converter -->
     <script id="flash-messages" type="application/json">
         {{ get_flashed_messages(with_categories=true)|tojson|safe }}
     </script>
     
     <script>
-        // ========== TOAST NOTIFICATION SYSTEM ==========
+        // Toast notification system (same as before)
         const Toast = {
-            // Show a toast message
             show: function(message, type = 'success', duration = 3000) {
-                // Create toast element
                 const toast = document.createElement('div');
                 toast.className = `toast toast-${type}`;
                 
-                // Set icon based on type
                 let icon = 'info-circle';
                 if (type === 'success') icon = 'check-circle';
                 if (type === 'error') icon = 'exclamation-circle';
@@ -99,65 +195,39 @@
                     </button>
                 `;
                 
-                // Add to container
-                const container = document.getElementById('toast-container');
-                container.appendChild(toast);
+                document.getElementById('toast-container').appendChild(toast);
                 
-                // Auto remove after duration
                 setTimeout(() => {
                     toast.style.animation = 'slideOut 0.3s ease';
                     setTimeout(() => toast.remove(), 300);
                 }, duration);
             },
-            
-            success: function(message) {
-                this.show(message, 'success');
-            },
-            
-            error: function(message) {
-                this.show(message, 'error');
-            },
-            
-            warning: function(message) {
-                this.show(message, 'warning');
-            },
-            
-            info: function(message) {
-                this.show(message, 'info');
-            }
+            success: function(message) { this.show(message, 'success'); },
+            error: function(message) { this.show(message, 'error'); },
+            warning: function(message) { this.show(message, 'warning'); },
+            info: function(message) { this.show(message, 'info'); }
         };
 
-        // ========== LOADING STATE MANAGER ==========
+        // Loading state manager
         const Loading = {
             show: function(button) {
                 const btn = typeof button === 'string' ? document.querySelector(button) : button;
                 if (!btn) return;
-                
-                // Store original text
                 btn.dataset.originalText = btn.innerHTML;
-                
-                // Show loading state
                 btn.disabled = true;
-                btn.innerHTML = `
-                    <i class="fas fa-spinner fa-spin"></i>
-                    Processing...
-                `;
+                btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Processing...`;
             },
-            
             hide: function(button) {
                 const btn = typeof button === 'string' ? document.querySelector(button) : button;
                 if (!btn) return;
-                
-                // Restore original text
                 btn.disabled = false;
                 btn.innerHTML = btn.dataset.originalText || 'Submit';
             }
         };
 
-        // ========== PROCESS FLASH MESSAGES ==========
+        // Process flash messages
         document.addEventListener('DOMContentLoaded', function() {
             try {
-                // Get flash messages from JSON script tag
                 const flashScript = document.getElementById('flash-messages');
                 if (flashScript) {
                     const messages = JSON.parse(flashScript.textContent);
@@ -165,57 +235,14 @@
                         const category = item[0];
                         const message = item[1];
                         
-                        if (category === 'success') {
-                            Toast.success(message);
-                        } else if (category === 'error' || category === 'danger') {
-                            Toast.error(message);
-                        } else if (category === 'warning') {
-                            Toast.warning(message);
-                        } else {
-                            Toast.info(message);
-                        }
+                        if (category === 'success') Toast.success(message);
+                        else if (category === 'error' || category === 'danger') Toast.error(message);
+                        else if (category === 'warning') Toast.warning(message);
+                        else Toast.info(message);
                     });
                 }
             } catch (e) {
                 console.error('Error parsing flash messages:', e);
-            }
-            
-            // Convert any existing alert divs to toasts
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(alert => {
-                const message = alert.innerText.trim();
-                const className = alert.className;
-                
-                if (className.includes('alert-success')) {
-                    Toast.success(message);
-                } else if (className.includes('alert-error') || className.includes('alert-danger')) {
-                    Toast.error(message);
-                } else if (className.includes('alert-warning')) {
-                    Toast.warning(message);
-                } else {
-                    Toast.info(message);
-                }
-                alert.remove();
-            });
-        });
-
-        // ========== PAGE LOADER ==========
-        // Add page loader element
-        document.addEventListener('DOMContentLoaded', function() {
-            const loader = document.createElement('div');
-            loader.className = 'page-loader';
-            loader.style.display = 'none';
-            document.body.appendChild(loader);
-        });
-
-        // Show loader on link clicks
-        document.addEventListener('click', function(e) {
-            const link = e.target.closest('a');
-            if (link && link.href && !link.href.includes('#') && !link.hasAttribute('data-no-loader')) {
-                const loader = document.querySelector('.page-loader');
-                if (loader) {
-                    loader.style.display = 'block';
-                }
             }
         });
     </script>

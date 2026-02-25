@@ -1,100 +1,117 @@
 {% extends "base.html" %}
 
-{% block title %}Sign In | Smart Canteen{% endblock %}
+{% block title %}Sign In | SJC Trichy Canteen{% endblock %}
 
-{% block login_active %}style="color: var(--accent);"{% endblock %}
+{% block login_active %}style="color: var(--sjc-gold);"{% endblock %}
 
 {% block content %}
-<div class="auth-container">
-    <div class="auth-card">
-        <!-- Header with Icon -->
-        <div class="auth-header">
-            <div class="auth-icon">
-                <i class="fas fa-utensils"></i>
-            </div>
-            <h2>Welcome Back</h2>
-            <p class="auth-subtitle">Sign in to your Smart Canteen account</p>
-        </div>
-
-        <!-- Error Messages - Converted to Toasts -->
-        {% if error %}
-        <div class="alert alert-error" style="display: none;">
-            {{ error }}
-        </div>
-        {% endif %}
-
-        <!-- Flash Messages - Converted to Toasts -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                <div class="alert alert-{{ category if category != 'message' else 'info' }}" style="display: none;">
-                    {{ message }}
+<div style="display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 200px); padding: 2rem;">
+    <div style="max-width: 450px; width: 100%;">
+        <div style="text-align: center; border-top: 4px solid var(--sjc-gold); border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); padding: 2.5rem; background: white;">
+            <!-- College Logo/Icon -->
+            <div style="margin-bottom: 1.5rem;">
+                <div style="background: var(--sjc-blue); width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; border: 3px solid var(--sjc-gold);">
+                    <i class="fas fa-utensils" style="font-size: 3rem; color: var(--sjc-gold);"></i>
                 </div>
-                {% endfor %}
+                <h2 style="margin-top: 1rem; color: var(--sjc-blue); font-family: 'Playfair Display', serif; font-size: 1.8rem;">SJC Trichy Canteen</h2>
+                <p style="color: #666; font-size: 1rem;">St. Joseph's College, Trichy</p>
+                <span style="margin-top: 0.5rem; display: inline-block; background: var(--sjc-gold); color: var(--sjc-blue); padding: 0.3rem 1rem; border-radius: 30px; font-weight: 600;">ESTB. 1844</span>
+            </div>
+
+            <!-- Flash Messages - Converted to Toasts -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}" style="display: none;">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- Error Message -->
+            {% if error %}
+            <div class="alert alert-error" style="margin-bottom: 1.5rem; display: none;">
+                {{ error }}
+            </div>
             {% endif %}
-        {% endwith %}
 
-        <!-- Login Form -->
-        <form method="POST" onsubmit="Loading.show(this.querySelector('button[type=submit]'))">
-            <div class="form-group">
-                <label for="email">
-                    <i class="fas fa-envelope" style="margin-right: 6px; color: var(--accent);"></i>
-                    Email Address
-                </label>
-                <input 
-                    type="email" 
-                    class="form-control" 
-                    id="email" 
-                    name="email" 
-                    placeholder="Enter your email" 
-                    value="{{ request.form.email if request.form.email }}"
-                    required
-                    autofocus
-                >
-            </div>
-
-            <div class="form-group">
-                <label for="password">
-                    <i class="fas fa-lock" style="margin-right: 6px; color: var(--accent);"></i>
-                    Password
-                </label>
-                <input 
-                    type="password" 
-                    class="form-control" 
-                    id="password" 
-                    name="password" 
-                    placeholder="Enter your password" 
-                    required
-                >
-            </div>
-
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                <div style="display: flex; align-items: center;">
-                    <input type="checkbox" id="remember" name="remember" style="width: auto; margin-right: 8px;">
-                    <label for="remember" style="margin: 0; font-weight: normal; font-size: 0.9rem;">Remember me</label>
+            <!-- Login Form -->
+            <form method="POST" onsubmit="Loading.show(this.querySelector('button[type=submit]'))">
+                <div style="margin-bottom: 1.5rem; text-align: left;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--sjc-blue);">
+                        <i class="fas fa-envelope" style="color: var(--sjc-gold); margin-right: 8px;"></i>
+                        Email Address
+                    </label>
+                    <input 
+                        type="email" 
+                        name="email" 
+                        class="form-control" 
+                        placeholder="Enter your email" 
+                        value="{{ request.form.email if request.form.email }}"
+                        required
+                        style="padding: 0.85rem; border: 2px solid #e0e0e0; border-radius: 12px; width: 100%; font-size: 1rem; transition: border-color 0.3s;"
+                        onfocus="this.style.borderColor='var(--sjc-gold)'"
+                        onblur="this.style.borderColor='#e0e0e0'"
+                    >
                 </div>
-                <a href="#" style="color: var(--accent); font-size: 0.9rem; text-decoration: none;">
-                    Forgot password?
-                </a>
+
+                <!-- Password field (only shown for admin) -->
+                <div id="password-field" style="margin-bottom: 1.5rem; text-align: left; display: none;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--sjc-blue);">
+                        <i class="fas fa-lock" style="color: var(--sjc-gold); margin-right: 8px;"></i>
+                        Password
+                    </label>
+                    <input 
+                        type="password" 
+                        name="password" 
+                        class="form-control" 
+                        placeholder="Enter admin password" 
+                        style="padding: 0.85rem; border: 2px solid #e0e0e0; border-radius: 12px; width: 100%; font-size: 1rem; transition: border-color 0.3s;"
+                        onfocus="this.style.borderColor='var(--sjc-gold)'"
+                        onblur="this.style.borderColor='#e0e0e0'"
+                    >
+                    <small style="color: #666; display: block; margin-top: 0.5rem;">
+                        <i class="fas fa-info-circle" style="color: var(--sjc-gold);"></i> Admin: admin@sjctrichy.edu / admin123
+                    </small>
+                </div>
+
+                <!-- Remember Me & Forgot Password -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <div style="display: flex; align-items: center;">
+                        <input type="checkbox" id="remember" name="remember" style="width: 18px; height: 18px; margin-right: 8px; accent-color: var(--sjc-gold);">
+                        <label for="remember" style="color: #666; font-size: 0.9rem;">Remember me</label>
+                    </div>
+                    <a href="#" style="color: var(--sjc-blue); font-size: 0.9rem; text-decoration: none;">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn" style="width: 100%; padding: 1rem; background: var(--sjc-blue); color: white; border: none; border-radius: 12px; font-weight: 600; font-size: 1.1rem; cursor: pointer; transition: all 0.3s;">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Continue to Canteen
+                </button>
+            </form>
+
+            <!-- Register Link -->
+            <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #eee;">
+                <p style="color: #666;">
+                    New to SJC Canteen? 
+                    <a href="{{ url_for('auth_bp.register') }}" style="color: var(--sjc-gold); font-weight: 600; text-decoration: none;">
+                        Create Account <i class="fas fa-arrow-right"></i>
+                    </a>
+                </p>
             </div>
-
-            <button type="submit" class="btn btn-primary">
-                <i class="fas fa-sign-in-alt"></i>
-                Sign In
-            </button>
-        </form>
-
-        <!-- Footer with Register Link -->
-        <div class="auth-footer">
-            <p>
-                Don't have an account? 
-                <a href="{{ url_for('auth_bp.register') }}">
-                    Create account <i class="fas fa-arrow-right"></i>
-                </a>
-            </p>
-            <p style="margin-top: 1rem; font-size: 0.8rem; color: var(--gray-400);">
-                <i class="fas fa-shield-alt"></i> Demo: admin@canteen.com / admin123
-            </p>
+            
+            <!-- Demo Credentials -->
+            <div style="margin-top: 1.5rem; background: #f8f9fa; padding: 1rem; border-radius: 12px; font-size: 0.9rem; border: 1px solid var(--sjc-gold);">
+                <p style="color: var(--sjc-blue); margin-bottom: 0.5rem; font-weight: 600;">
+                    <i class="fas fa-flask" style="color: var(--sjc-gold);"></i> Demo Access:
+                </p>
+                <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                    <span style="background: white; padding: 0.3rem 1rem; border-radius: 30px; border: 1px solid var(--sjc-blue); color: var(--sjc-blue);">student@sjc.edu</span>
+                    <span style="background: white; padding: 0.3rem 1rem; border-radius: 30px; border: 1px solid var(--sjc-gold); color: var(--sjc-gold); font-weight: 600;">admin@sjctrichy.edu</span>
+                </div>
+                <p style="color: #666; font-size: 0.8rem; margin-top: 0.5rem;">Admin password: admin123</p>
+            </div>
         </div>
     </div>
 </div>
@@ -103,52 +120,73 @@
 <script>
 // Convert all alerts to toast notifications
 document.addEventListener('DOMContentLoaded', function() {
-    // Check for error parameter in URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const error = urlParams.get('error');
+    const emailInput = document.querySelector('input[name="email"]');
+    const passwordField = document.getElementById('password-field');
     
-    if (error === 'session_expired') {
-        Toast.warning('⏰ Your session has expired. Please login again.');
-    } else if (error === 'unauthorized') {
-        Toast.error('🔒 Please login to access this page.');
-    } else if (error === 'invalid_credentials') {
-        Toast.error('❌ Invalid email or password. Please try again.');
-    } else if (error === 'account_locked') {
-        Toast.error('🔐 Account locked. Please contact support.');
+    // Show password field only for admin email
+    if (emailInput) {
+        emailInput.addEventListener('input', function() {
+            if (this.value === 'admin@sjctrichy.edu') {
+                passwordField.style.display = 'block';
+            } else {
+                passwordField.style.display = 'none';
+            }
+        });
     }
     
-    // Show flash messages as toasts
+    // Check initial value
+    if (emailInput && emailInput.value === 'admin@sjctrichy.edu') {
+        passwordField.style.display = 'block';
+    }
+    
+    // Show error messages as toasts
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(alert => {
         const message = alert.innerText.trim();
         const className = alert.className;
         
-        if (className.includes('alert-success')) {
-            Toast.success(message);
-        } else if (className.includes('alert-error') || className.includes('alert-danger')) {
-            Toast.error(message);
-        } else if (className.includes('alert-warning')) {
-            Toast.warning(message);
-        } else {
-            Toast.info(message);
+        if (message) {
+            if (className.includes('alert-error') || className.includes('alert-danger')) {
+                if (typeof Toast !== 'undefined') Toast.error(message);
+                else alert(message);
+            } else if (className.includes('alert-success')) {
+                if (typeof Toast !== 'undefined') Toast.success(message);
+                else alert(message);
+            } else if (className.includes('alert-warning')) {
+                if (typeof Toast !== 'undefined') Toast.warning(message);
+                else alert(message);
+            } else {
+                if (typeof Toast !== 'undefined') Toast.info(message);
+                else alert(message);
+            }
         }
         alert.remove();
     });
     
     // Auto-focus email field
-    document.getElementById('email').focus();
-    
-    // Add demo credentials helper (optional)
-    console.log('Demo: admin@canteen.com / admin123');
+    if (emailInput) emailInput.focus();
 });
 
-// Add keyboard shortcut for demo login (Ctrl/Cmd + D)
+// Keyboard shortcut for demo login
 document.addEventListener('keydown', function(e) {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+    if ((e.ctrlKey || e.metaKey) && e.key === '1') {
         e.preventDefault();
-        document.getElementById('email').value = 'admin@canteen.com';
-        document.getElementById('password').value = 'admin123';
-        Toast.info('🔑 Demo credentials filled! Click Sign In.');
+        const emailInput = document.querySelector('input[name="email"]');
+        if (emailInput) {
+            emailInput.value = 'student@sjc.edu';
+            if (typeof Toast !== 'undefined') {
+                Toast.info('📝 Student demo email filled!');
+            }
+        }
+    } else if ((e.ctrlKey || e.metaKey) && e.key === '2') {
+        e.preventDefault();
+        const emailInput = document.querySelector('input[name="email"]');
+        const passwordInput = document.querySelector('input[name="password"]');
+        if (emailInput) emailInput.value = 'admin@sjctrichy.edu';
+        if (passwordInput) passwordInput.value = 'admin123';
+        if (typeof Toast !== 'undefined') {
+            Toast.info('👑 Admin demo credentials filled!');
+        }
     }
 });
 </script>

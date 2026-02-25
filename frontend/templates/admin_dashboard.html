@@ -17,7 +17,7 @@
 <header class="topbar">
     <div class="logo">
         <i class="fas fa-crown" style="margin-right: 8px; color: #f59e0b;"></i>
-        Admin Panel
+        Admin 
     </div>
     <div class="nav-links">
         <a href="/admin/dashboard" style="color: var(--accent);">
@@ -33,6 +33,13 @@
 </header>
 
 <!-- Dashboard Content -->
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard | Smart Canteen{% endblock %}
+
+{% block admin_dashboard_active %}style="color: var(--accent);"{% endblock %}
+
+{% block content %}
 <div class="dashboard">
     <!-- Page Header -->
     <div class="page-header">
@@ -47,7 +54,7 @@
         </div>
         <div style="background: var(--accent-soft); padding: 0.75rem 1.5rem; border-radius: var(--radius-full);">
             <i class="fas fa-calendar" style="color: var(--accent); margin-right: 8px;"></i>
-            <span style="font-weight: 500;">{{ current_time or 'Today' }}</span>
+            <span style="font-weight: 500;">{{ datetime.now().strftime('%B %d, %Y') }}</span>
         </div>
     </div>
 
@@ -57,7 +64,7 @@
         <div class="stat-card pending">
             <div class="stat-info">
                 <h4>Pending Orders</h4>
-                <div class="stat-number">{{ pending_count }}</div>
+                <div class="stat-number" id="pending-count">{{ pending_count }}</div>
                 <span style="color: var(--gray-500); font-size: 0.85rem;">Awaiting acceptance</span>
             </div>
             <div class="stat-icon">
@@ -65,11 +72,11 @@
             </div>
         </div>
 
-        <!-- You can add more stat cards here as you add backend data -->
+        <!-- Total Orders Card -->
         <div class="stat-card">
             <div class="stat-info">
                 <h4>Total Orders</h4>
-                <div class="stat-number">{{ total_orders or '0' }}</div>
+                <div class="stat-number">{{ total_orders }}</div>
                 <span style="color: var(--gray-500); font-size: 0.85rem;">All time</span>
             </div>
             <div class="stat-icon">
@@ -77,10 +84,11 @@
             </div>
         </div>
 
+        <!-- Active Menu Items Card -->
         <div class="stat-card">
             <div class="stat-info">
                 <h4>Active Menu Items</h4>
-                <div class="stat-number">{{ menu_count or '0' }}</div>
+                <div class="stat-number">{{ menu_count }}</div>
                 <span style="color: var(--gray-500); font-size: 0.85rem;">Available now</span>
             </div>
             <div class="stat-icon">
@@ -88,11 +96,14 @@
             </div>
         </div>
 
+        <!-- Revenue Card - Shows today's revenue -->
         <div class="stat-card">
             <div class="stat-info">
-                <h4>Revenue</h4>
-                <div class="stat-number">₹ {{ revenue or '0' }}</div>
-                <span style="color: var(--gray-500); font-size: 0.85rem;">Today</span>
+                <h4>Today's Revenue</h4>
+                <div class="stat-number" style="color: var(--accent);" id="revenue-amount">
+                    ₹ {{ revenue }}
+                </div>
+                <span style="color: var(--gray-500); font-size: 0.85rem;">{{ datetime.now().strftime('%B %d, %Y') }}</span>
             </div>
             <div class="stat-icon">
                 <i class="fas fa-rupee-sign"></i>
@@ -106,9 +117,9 @@
             <i class="fas fa-clipboard-list"></i>
             View All Orders
         </a>
-        <a href="#" class="btn btn-outline">
-            <i class="fas fa-chart-bar"></i>
-            View Reports
+        <a href="/menu" class="btn btn-outline">
+            <i class="fas fa-utensils"></i>
+            View Menu
         </a>
     </div>
 
@@ -132,13 +143,14 @@
                         <th>Customer</th>
                         <th>Amount</th>
                         <th>Status</th>
+                        <th>Time</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% if recent_orders %}
                         {% for order in recent_orders %}
                         <tr>
-                            <td><strong>#{{ order.order_id }}</strong></td>
+                            <td><strong style="color: var(--accent);">#{{ order.order_id }}</strong></td>
                             <td>{{ order.user_name }}</td>
                             <td><strong style="color: var(--accent);">₹ {{ order.total_amount }}</strong></td>
                             <td>
@@ -146,13 +158,14 @@
                                     {{ order.status }}
                                 </span>
                             </td>
+                            <td>{{ order.order_time.strftime('%H:%M') }}</td>
                         </tr>
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="4" style="text-align: center; padding: 2rem; color: var(--gray-500);">
+                            <td colspan="5" style="text-align: center; padding: 2rem; color: var(--gray-500);">
                                 <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
-                                No orders yet
+                                No orders yet today
                             </td>
                         </tr>
                     {% endif %}
@@ -162,5 +175,63 @@
     </div>
 </div>
 
-</body>
-</html>
+<!-- Socket.IO for real-time updates -->
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<script>
+    // Real-time revenue updates
+    document.addEventListener('DOMContentLoaded', function() {
+        const socket = io();
+        
+        socket.on('connect', function() {
+            console.log('📊 Dashboard connected to real-time server');
+            socket.emit('join_admin_room');
+        });
+        
+        // Listen for revenue updates
+        socket.on('revenue_updated', function(data) {
+            console.log('💰 Revenue updated:', data);
+            
+            // Update revenue display
+            const revenueElement = document.getElementById('revenue-amount');
+            if (revenueElement) {
+                const currentRevenue = parseFloat(revenueElement.innerText.replace('₹', '')) || 0;
+                const newRevenue = currentRevenue + parseFloat(data.amount);
+                revenueElement.innerText = `₹ ${newRevenue}`;
+            }
+            
+            // Show toast notification
+            if (typeof Toast !== 'undefined') {
+                Toast.success(`💰 ${data.message}`);
+            } else {
+                alert(`💰 ${data.message}`);
+            }
+        });
+        
+        // Listen for new orders
+        socket.on('new_order', function(data) {
+            console.log('🆕 New order received:', data);
+            
+            if (typeof Toast !== 'undefined') {
+                Toast.success(`🔔 New Order #${data.order_id} - ₹${data.total_amount}`);
+            }
+            
+            // Update pending count
+            const pendingElement = document.getElementById('pending-count');
+            if (pendingElement) {
+                pendingElement.innerText = parseInt(pendingElement.innerText) + 1;
+            }
+        });
+        
+        // Listen for order status updates
+        socket.on('order_status_updated', function(data) {
+            if (data.status === 'ACCEPTED') {
+                // Update pending count
+                const pendingElement = document.getElementById('pending-count');
+                if (pendingElement) {
+                    pendingElement.innerText = Math.max(0, parseInt(pendingElement.innerText) - 1);
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

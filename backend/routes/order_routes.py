@@ -51,9 +51,9 @@ def place_order(product_id):
         price = product["price"]
         total_amount = price * quantity
 
-        # 2️⃣ Create order
+        # 2️⃣ Create order with 'pending' status
         cursor.execute(
-            "INSERT INTO orders (user_id, total_amount, status) VALUES (%s, %s, 'PAID')",
+            "INSERT INTO orders (user_id, total_amount, status) VALUES (%s, %s, 'pending')",
             (user_id, total_amount)
         )
         order_id = cursor.lastrowid
@@ -78,7 +78,7 @@ def place_order(product_id):
                 'product_name': product["name"],
                 'quantity': quantity,
                 'total_amount': float(total_amount),
-                'status': 'PAID',
+                'status': 'pending',
                 'order_time': 'Just now'
             }, room='admins')
             print(f"🔔 Real-time notification sent for Order #{order_id}")
@@ -96,6 +96,7 @@ def place_order(product_id):
                 "product_name": product["name"],
                 "quantity": quantity,
                 "total": total_amount,
+                "status": "pending",
                 "redirect": url_for("payment_bp.payment", order_id=order_id)
             })
         else:
@@ -130,6 +131,7 @@ def my_orders():
 
     cursor = conn.cursor(dictionary=True)
 
+    # FIXED: Properly get all order details with order_id
     cursor.execute("""
         SELECT 
             o.id AS order_id,
@@ -149,6 +151,38 @@ def my_orders():
     """, (user_id,))
 
     orders = cursor.fetchall()
+    
+    # Format orders for display
+    for order in orders:
+        # Ensure order_id is properly formatted
+        order['display_id'] = f"#{order['order_id']}"
+        
+        # Format status for display
+        if order['status'] == 'pending':
+            order['status_display'] = 'PENDING'
+            order['status_color'] = '#f59e0b'  # Orange
+            order['action_text'] = 'Processing'
+            order['action_color'] = '#f59e0b'
+        elif order['status'] == 'accepted':
+            order['status_display'] = 'ACCEPTED'
+            order['status_color'] = '#3b82f6'  # Blue
+            order['action_text'] = 'Preparing'
+            order['action_color'] = '#3b82f6'
+        elif order['status'] == 'completed':
+            order['status_display'] = 'COMPLETED'
+            order['status_color'] = '#10b981'  # Green
+            order['action_text'] = 'Delivered'
+            order['action_color'] = '#10b981'
+        elif order['status'] == 'rejected':
+            order['status_display'] = 'REJECTED'
+            order['status_color'] = '#ef4444'  # Red
+            order['action_text'] = 'Cancelled'
+            order['action_color'] = '#ef4444'
+        else:
+            order['status_display'] = order['status'].upper()
+            order['status_color'] = '#6b7280'  # Gray
+            order['action_text'] = 'Processing'
+            order['action_color'] = '#6b7280'
 
     cursor.close()
     conn.close()

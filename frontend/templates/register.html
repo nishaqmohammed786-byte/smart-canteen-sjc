@@ -1,116 +1,171 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Account | Smart Canteen</title>
-    
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <!-- Professional CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body class="auth-body">
+{% extends "base.html" %}
 
-<div class="auth-container">
-    <div class="auth-card">
-        <!-- Header with Icon -->
-        <div class="auth-header">
-            <div class="auth-icon">
-                <i class="fas fa-user-plus"></i>
+{% block title %}Join SJC Canteen{% endblock %}
+
+{% block register_active %}style="color: var(--sjc-gold);"{% endblock %}
+
+{% block content %}
+<div class="auth-container" style="max-width: 450px;">
+    <div class="auth-card" style="text-align: center; border-top: 4px solid var(--sjc-gold);">
+        <!-- College Logo/Icon -->
+        <div style="margin-bottom: 1.5rem;">
+            <div style="background: var(--sjc-blue); width: 90px; height: 90px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; border: 3px solid var(--sjc-gold);">
+                <i class="fas fa-user-plus" style="font-size: 2.8rem; color: var(--sjc-gold);"></i>
             </div>
-            <h2>Create Account</h2>
-            <p class="auth-subtitle">Join Smart Canteen today</p>
+            <h2 style="margin-top: 1rem; color: var(--sjc-blue); font-family: 'Playfair Display', serif;">Join SJC Canteen</h2>
+            <p style="color: var(--gray-600);">St. Joseph's College</p>
+            <span class="sjc-badge" style="margin-top: 0.5rem;">QUICK REGISTRATION</span>
         </div>
 
-        <!-- Error Messages -->
-        {% if error %}
-        <div class="alert alert-error">
-            <i class="fas fa-exclamation-circle"></i>
-            <span>{{ error }}</span>
-        </div>
-        {% endif %}
-
+        <!-- Flash Messages - Converted to Toasts -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                <div class="alert alert-{{ category if category != 'message' else 'info' }}">
-                    <i class="fas fa-{% if category == 'success' %}check-circle{% else %}info-circle{% endif %}"></i>
-                    <span>{{ message }}</span>
+                <div class="alert alert-{{ category }}" style="display: none;">
+                    {{ message }}
                 </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
 
-        <!-- Registration Form -->
-        <form method="POST">
-            <div class="form-group">
-                <label for="name">
-                    <i class="fas fa-user" style="margin-right: 6px; color: var(--accent);"></i>
+        <!-- Error Message -->
+        {% if error %}
+        <div class="alert alert-error" style="margin-bottom: 1.5rem; display: none;">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <!-- Registration Form - Just name and email -->
+        <form method="POST" onsubmit="Loading.show(this.querySelector('button[type=submit]'))">
+            <div style="margin-bottom: 1.5rem; text-align: left;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--sjc-blue);">
+                    <i class="fas fa-user" style="color: var(--sjc-gold); margin-right: 8px;"></i>
                     Full Name
                 </label>
                 <input 
                     type="text" 
-                    class="form-control" 
-                    id="name" 
                     name="name" 
+                    class="form-control" 
                     placeholder="Enter your full name" 
+                    value="{{ request.form.name if request.form.name }}"
                     required
-                    autofocus
+                    style="padding: 0.85rem; border: 2px solid #e0e0e0; border-radius: 12px;"
                 >
+                <small style="color: var(--gray-500); display: block; margin-top: 0.5rem;">
+                    <i class="fas fa-info-circle"></i> Enter your name as per college records
+                </small>
             </div>
 
-            <div class="form-group">
-                <label for="email">
-                    <i class="fas fa-envelope" style="margin-right: 6px; color: var(--accent);"></i>
+            <div style="margin-bottom: 1.5rem; text-align: left;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--sjc-blue);">
+                    <i class="fas fa-envelope" style="color: var(--sjc-gold); margin-right: 8px;"></i>
                     Email Address
                 </label>
                 <input 
                     type="email" 
-                    class="form-control" 
-                    id="email" 
                     name="email" 
-                    placeholder="Enter your email" 
-                    required
-                >
-            </div>
-
-            <div class="form-group">
-                <label for="password">
-                    <i class="fas fa-lock" style="margin-right: 6px; color: var(--accent);"></i>
-                    Password
-                </label>
-                <input 
-                    type="password" 
                     class="form-control" 
-                    id="password" 
-                    name="password" 
-                    placeholder="Create a password (min. 6 characters)" 
+                    placeholder="Enter your college email" 
+                    value="{{ request.form.email if request.form.email }}"
                     required
+                    style="padding: 0.85rem; border: 2px solid #e0e0e0; border-radius: 12px;"
                 >
-                <small style="display: block; margin-top: 6px; color: var(--gray-500); font-size: 0.8rem;">
-                    <i class="fas fa-info-circle"></i> Password must be at least 6 characters
+                <small style="color: var(--gray-500); display: block; margin-top: 0.5rem;">
+                    <i class="fas fa-info-circle"></i> Use your SJC email address (e.g., name@sjc.edu)
                 </small>
             </div>
 
-            <button type="submit" class="btn btn-primary">
+            <!-- Terms and Conditions -->
+            <div style="margin-bottom: 1.5rem; text-align: left; background: #f8f9fa; padding: 1rem; border-radius: 12px;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" name="terms" required style="width: 18px; height: 18px; accent-color: var(--sjc-gold);">
+                    <span style="color: var(--gray-700); font-size: 0.9rem;">
+                        I agree to the <a href="#" style="color: var(--sjc-gold); text-decoration: none;">Terms of Service</a> and <a href="#" style="color: var(--sjc-gold); text-decoration: none;">Privacy Policy</a>
+                    </span>
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem; background: var(--sjc-blue); border: none; border-radius: 12px; font-weight: 600; font-size: 1.1rem;">
                 <i class="fas fa-user-plus"></i>
-                Create Account
+                Create Account & Continue
             </button>
         </form>
 
-        <!-- Footer with Login Link -->
-        <div class="auth-footer">
-            <p>
+        <!-- Login Link -->
+        <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--gray-200);">
+            <p style="color: var(--gray-600);">
                 Already have an account? 
-                <a href="{{ url_for('auth_bp.login') }}">
-                    Sign in <i class="fas fa-arrow-right"></i>
+                <a href="{{ url_for('auth_bp.login') }}" style="color: var(--sjc-gold); font-weight: 600; text-decoration: none;">
+                    Sign In <i class="fas fa-arrow-right"></i>
                 </a>
             </p>
+        </div>
+        
+        <!-- Benefits -->
+        <div style="margin-top: 1.5rem; display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-clock" style="color: var(--sjc-gold);"></i>
+                <span style="color: var(--gray-600); font-size: 0.9rem;">Quick Order</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-tag" style="color: var(--sjc-gold);"></i>
+                <span style="color: var(--gray-600); font-size: 0.9rem;">Student Discount</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-star" style="color: var(--sjc-gold);"></i>
+                <span style="color: var(--gray-600); font-size: 0.9rem;">SJC Specials</span>
+            </div>
         </div>
     </div>
 </div>
 
-</body>
-</html>
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Show any error messages as toasts
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        const message = alert.innerText.trim();
+        const className = alert.className;
+        
+        if (message) {
+            if (className.includes('alert-error') || className.includes('alert-danger')) {
+                Toast.error(message);
+            } else if (className.includes('alert-success')) {
+                Toast.success(message);
+            } else if (className.includes('alert-warning')) {
+                Toast.warning(message);
+            } else {
+                Toast.info(message);
+            }
+        }
+        alert.remove();
+    });
+    
+    // Auto-focus name field
+    document.querySelector('input[name="name"]').focus();
+    
+    // Email validation for SJC domain (optional)
+    const emailInput = document.querySelector('input[name="email"]');
+    emailInput.addEventListener('blur', function() {
+        const email = this.value;
+        if (email && !email.includes('@')) {
+            Toast.warning('Please enter a valid email address');
+        } else if (email && !email.endsWith('.edu') && !email.endsWith('.ac.in')) {
+            Toast.info('💡 Tip: Use your college email for student discounts');
+        }
+    });
+});
+
+// Keyboard shortcut for demo registration (Ctrl/Cmd + R)
+document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+        e.preventDefault();
+        document.querySelector('input[name="name"]').value = 'John Student';
+        document.querySelector('input[name="email"]').value = 'student@sjc.edu';
+        Toast.info('📝 Demo details filled! Click Create Account.');
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}

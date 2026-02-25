@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, redirect, session, url_for, request, jsonify
 from backend.database.db_config import get_db_connection
+from datetime import datetime
 
 admin_bp = Blueprint(
     "admin_bp",
@@ -20,11 +21,11 @@ def dashboard():
 
     cursor = conn.cursor(dictionary=True)
 
-    # Get pending orders count
+    # Get pending orders count (pending = waiting to be accepted)
     cursor.execute("""
         SELECT COUNT(*) AS pending_count
         FROM orders
-        WHERE status = 'PAID'
+        WHERE status = 'pending'
     """)
     pending_count = cursor.fetchone()["pending_count"]
     
@@ -35,18 +36,19 @@ def dashboard():
     """)
     total_count = cursor.fetchone()["total_count"]
     
-    # Get menu items count
+    # Get active menu items count
     cursor.execute("""
         SELECT COUNT(*) AS menu_count
         FROM products
     """)
     menu_count = cursor.fetchone()["menu_count"]
     
-    # Get today's revenue
+    # Get TODAY'S revenue from completed orders
     cursor.execute("""
         SELECT COALESCE(SUM(total_amount), 0) AS revenue
         FROM orders
-        WHERE DATE(order_time) = CURDATE() AND status = 'COMPLETED'
+        WHERE DATE(order_time) = CURDATE() 
+        AND status = 'completed'
     """)
     revenue = cursor.fetchone()["revenue"]
     
@@ -74,7 +76,8 @@ def dashboard():
         total_orders=total_count,
         menu_count=menu_count,
         revenue=revenue,
-        recent_orders=recent_orders
+        recent_orders=recent_orders,
+        datetime=datetime
     )
 
 
@@ -110,24 +113,21 @@ def orders():
 
     orders = cursor.fetchall()
     
-    # ========== FIXED: Properly convert items to strings and create display field ==========
+    # Convert items to string for template
     for order in orders:
-        # Convert items to string if it exists
         if order['items'] is None:
             order['items'] = ''
         else:
-            # Convert to string and clean it
             order['items'] = str(order['items'])
         
-        # Create a separate display field that's definitely a string
+        # Create display field
         order['items_display'] = order['items']
         
-        # Ensure items_count is an integer
         if order['items_count'] is None:
             order['items_count'] = 0
         else:
             order['items_count'] = int(order['items_count'])
-    
+
     cursor.close()
     conn.close()
 
@@ -137,9 +137,7 @@ def orders():
 # ---------------- ACCEPT ORDER ----------------
 @admin_bp.route("/accept/<int:order_id>")
 def accept_order(order_id):
-    # Check if user is admin
     if session.get("role") != "admin":
-        # Check if AJAX request
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return jsonify({"success": False, "error": "Unauthorized"}), 401
         return redirect(url_for("auth_bp.login"))
@@ -153,38 +151,35 @@ def accept_order(order_id):
     cursor = conn.cursor()
     
     try:
-        # Update order status
+        # Update order status to accepted
         cursor.execute(
-            "UPDATE orders SET status = 'ACCEPTED' WHERE id = %s",
+            "UPDATE orders SET status = 'accepted' WHERE id = %s",
             (order_id,)
         )
         conn.commit()
         
-        # Send real-time update via SocketIO
+        # Send real-time update
         try:
             from backend.app import socketio
             socketio.emit('order_status_updated', {
                 'order_id': order_id,
-                'status': 'ACCEPTED',
+                'status': 'accepted',
                 'message': f'Order #{order_id} has been accepted'
             }, room='admins')
-            print(f"📤 Real-time update sent: Order #{order_id} accepted")
-        except Exception as e:
-            print(f"⚠️ SocketIO notification failed: {e}")
+        except:
+            pass
         
         cursor.close()
         conn.close()
         
-        # ALWAYS RETURN JSON FOR AJAX REQUESTS
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return jsonify({
                 "success": True, 
-                "status": "ACCEPTED",
+                "status": "accepted",
                 "order_id": order_id,
                 "message": f"Order #{order_id} accepted successfully"
             })
         
-        # Only redirect for regular form submissions
         return redirect(url_for("admin_bp.orders"))
         
     except Exception as e:
@@ -201,7 +196,6 @@ def accept_order(order_id):
 # ---------------- REJECT ORDER ----------------
 @admin_bp.route("/reject/<int:order_id>")
 def reject_order(order_id):
-    # Check if user is admin
     if session.get("role") != "admin":
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return jsonify({"success": False, "error": "Unauthorized"}), 401
@@ -216,38 +210,35 @@ def reject_order(order_id):
     cursor = conn.cursor()
     
     try:
-        # Update order status
+        # Update order status to rejected
         cursor.execute(
-            "UPDATE orders SET status = 'REJECTED' WHERE id = %s",
+            "UPDATE orders SET status = 'rejected' WHERE id = %s",
             (order_id,)
         )
         conn.commit()
         
-        # Send real-time update via SocketIO
+        # Send real-time update
         try:
             from backend.app import socketio
             socketio.emit('order_status_updated', {
                 'order_id': order_id,
-                'status': 'REJECTED',
+                'status': 'rejected',
                 'message': f'Order #{order_id} has been rejected'
             }, room='admins')
-            print(f"📤 Real-time update sent: Order #{order_id} rejected")
-        except Exception as e:
-            print(f"⚠️ SocketIO notification failed: {e}")
+        except:
+            pass
         
         cursor.close()
         conn.close()
         
-        # ALWAYS RETURN JSON FOR AJAX REQUESTS
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return jsonify({
                 "success": True, 
-                "status": "REJECTED",
+                "status": "rejected",
                 "order_id": order_id,
                 "message": f"Order #{order_id} rejected successfully"
             })
         
-        # Only redirect for regular form submissions
         return redirect(url_for("admin_bp.orders"))
         
     except Exception as e:
@@ -264,7 +255,6 @@ def reject_order(order_id):
 # ---------------- COMPLETE ORDER ----------------
 @admin_bp.route("/complete/<int:order_id>")
 def complete_order(order_id):
-    # Check if user is admin
     if session.get("role") != "admin":
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return jsonify({"success": False, "error": "Unauthorized"}), 401
@@ -279,38 +269,48 @@ def complete_order(order_id):
     cursor = conn.cursor()
     
     try:
-        # Update order status
+        # Get order amount before updating
+        cursor.execute("SELECT total_amount FROM orders WHERE id = %s", (order_id,))
+        order_result = cursor.fetchone()
+        total_amount = order_result[0] if order_result else 0
+        
+        # Update order status to completed
         cursor.execute(
-            "UPDATE orders SET status = 'COMPLETED' WHERE id = %s",
+            "UPDATE orders SET status = 'completed' WHERE id = %s",
             (order_id,)
         )
         conn.commit()
         
-        # Send real-time update via SocketIO
+        # Send real-time update
         try:
             from backend.app import socketio
             socketio.emit('order_status_updated', {
                 'order_id': order_id,
-                'status': 'COMPLETED',
-                'message': f'Order #{order_id} has been completed'
+                'status': 'completed',
+                'message': f'Order #{order_id} has been completed',
+                'amount': total_amount
             }, room='admins')
-            print(f"📤 Real-time update sent: Order #{order_id} completed")
-        except Exception as e:
-            print(f"⚠️ SocketIO notification failed: {e}")
+            
+            # Also emit revenue update
+            socketio.emit('revenue_updated', {
+                'amount': total_amount,
+                'message': f'₹{total_amount} added to today\'s revenue'
+            }, room='admins')
+        except:
+            pass
         
         cursor.close()
         conn.close()
         
-        # ALWAYS RETURN JSON FOR AJAX REQUESTS
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return jsonify({
                 "success": True, 
-                "status": "COMPLETED",
+                "status": "completed",
                 "order_id": order_id,
-                "message": f"Order #{order_id} completed successfully"
+                "amount": total_amount,
+                "message": f"Order #{order_id} completed successfully! ₹{total_amount} added to revenue"
             })
         
-        # Only redirect for regular form submissions
         return redirect(url_for("admin_bp.orders"))
         
     except Exception as e:
@@ -336,7 +336,6 @@ def get_order_details(order_id):
     
     cursor = conn.cursor(dictionary=True)
     
-    # Get order details with items
     cursor.execute("""
         SELECT
             o.id AS order_id,
@@ -348,8 +347,7 @@ def get_order_details(order_id):
             GROUP_CONCAT(
                 CONCAT(p.name, ' (Qty: ', oi.quantity, ', ₹', oi.price, ')')
                 SEPARATOR '\n'
-            ) AS items_list,
-            SUM(oi.quantity * oi.price) AS calculated_total
+            ) AS items_list
         FROM orders o
         JOIN users u ON o.user_id = u.id
         LEFT JOIN order_items oi ON o.id = oi.order_id
@@ -363,7 +361,6 @@ def get_order_details(order_id):
     conn.close()
     
     if order:
-        # Convert items_list to string
         if order['items_list'] is None:
             order['items_list'] = ''
         else:

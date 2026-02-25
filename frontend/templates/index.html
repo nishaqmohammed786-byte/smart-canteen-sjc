@@ -1,52 +1,822 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Smart Canteen · Professional Management System</title>
+    <title>SJC Trichy Canteen · Smart Food Management</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <!-- Optional: add Google Font for a more professional look -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Font Awesome 5 (professional icons) -->
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --sjc-blue: #1a3a6e;
+            --sjc-gold: #c9a227;
+            --sjc-cream: #faf7f2;
+            --sjc-dark: #2c3e50;
+            --sjc-light: #f8f9fa;
+            --gradient-blue: linear-gradient(145deg, #1a3a6e, #2a4a8e);
+            --gradient-gold: linear-gradient(145deg, #c9a227, #dbb34c);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: #333;
+            overflow-x: hidden;
+            background: var(--sjc-cream);
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            z-index: 1000;
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-blue);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: rotate(45deg);
+        }
+
+        .logo-icon i {
+            transform: rotate(-45deg);
+            color: var(--sjc-gold);
+            font-size: 1.5rem;
+        }
+
+        .logo-text {
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: var(--gradient-blue);
+    -webkit-background-clip: text;
+    -moz-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    -moz-text-fill-color: transparent;
+    font-family: 'Playfair Display', serif;
+    color: transparent; /* Fallback for browsers that don't support text-fill-color */
+}
+
+.logo-text span {
+    background: none;
+    -webkit-text-fill-color: var(--sjc-gold);
+    -moz-text-fill-color: var(--sjc-gold);
+    color: var(--sjc-gold); /* Fallback */
+}
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--sjc-dark);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--sjc-gold);
+        }
+
+        .nav-btn {
+            background: var(--gradient-blue);
+            color: white !important;
+            padding: 0.7rem 1.8rem;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s !important;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(26,58,110,0.3);
+            color: white !important;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            position: relative;
+            background: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80') center/cover fixed;
+            display: flex;
+            align-items: center;
+            isolation: isolate;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(26,58,110,0.95), rgba(0,0,0,0.8));
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 5%;
+            width: 100%;
+            color: white;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: var(--sjc-gold);
+            color: var(--sjc-blue);
+            padding: 0.5rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            letter-spacing: 1px;
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero h1 {
+            font-size: 4.5rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 1s ease 0.2s both;
+        }
+
+        .hero h1 span {
+            color: var(--sjc-gold);
+            position: relative;
+            display: inline-block;
+        }
+
+        .hero h1 span::after {
+            content: '';
+            position: absolute;
+            bottom: 10px;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background: rgba(201,162,39,0.3);
+            z-index: -1;
+        }
+
+        .hero-subhead {
+            font-size: 1.3rem;
+            max-width: 600px;
+            margin-bottom: 2.5rem;
+            opacity: 0.9;
+            animation: fadeInUp 1s ease 0.4s both;
+        }
+
+        .hero-features {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+            animation: fadeInUp 1s ease 0.6s both;
+        }
+
+        .hero-feature {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.1);
+            padding: 0.7rem 1.5rem;
+            border-radius: 40px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .hero-feature i {
+            color: var(--sjc-gold);
+            font-size: 1.1rem;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            animation: fadeInUp 1s ease 0.8s both;
+        }
+
+        .hero-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .hero-btn-primary {
+            background: var(--sjc-gold);
+            color: var(--sjc-blue);
+            box-shadow: 0 10px 20px rgba(201,162,39,0.3);
+        }
+
+        .hero-btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(201,162,39,0.4);
+        }
+
+        .hero-btn-outline {
+            border: 2px solid white;
+            color: white;
+        }
+
+        .hero-btn-outline:hover {
+            background: white;
+            color: var(--sjc-blue);
+            transform: translateY(-3px);
+        }
+
+        /* Stats Section */
+        .stats {
+            padding: 5rem 5%;
+            background: white;
+        }
+
+        .stats-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--sjc-blue);
+            font-family: 'Playfair Display', serif;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--sjc-gold);
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 5rem 5%;
+            background: var(--sjc-cream);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: var(--sjc-blue);
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto 3rem;
+        }
+
+        .features-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2.5rem 2rem;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(26,58,110,0.1);
+            border-bottom-color: var(--sjc-gold);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-blue);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            transform: rotate(45deg);
+        }
+
+        .feature-icon i {
+            transform: rotate(-45deg);
+            font-size: 2rem;
+            color: var(--sjc-gold);
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            color: var(--sjc-blue);
+            margin-bottom: 1rem;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* Menu Preview */
+        .menu-preview {
+            padding: 5rem 5%;
+            background: white;
+        }
+
+        .menu-grid {
+            max-width: 1200px;
+            margin: 3rem auto 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .menu-item {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .menu-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .menu-item-content {
+            padding: 1.5rem;
+            background: white;
+        }
+
+        .menu-item h4 {
+            color: var(--sjc-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .menu-item-price {
+            color: var(--sjc-gold);
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: 5rem 5%;
+            background: var(--gradient-blue);
+            color: white;
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .cta p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--sjc-gold);
+            color: var(--sjc-blue);
+            padding: 1rem 3rem;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(201,162,39,0.4);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--sjc-dark);
+            color: white;
+            padding: 3rem 5% 1rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-col h4 {
+            color: var(--sjc-gold);
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+        }
+
+        .footer-col p, .footer-col a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            line-height: 1.8;
+            display: block;
+        }
+
+        .footer-col a:hover {
+            color: var(--sjc-gold);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+
+        .social-links a:hover {
+            background: var(--sjc-gold);
+        }
+
+        .social-links a:hover i {
+            color: var(--sjc-blue);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.5);
+            font-size: 0.9rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-features {
+                justify-content: center;
+            }
+
+            .hero-buttons {
+                justify-content: center;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
 </head>
 <body>
 
-<div class="hero">
-    <!-- Subtle overlay & modern grid background -->
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-        <!-- Logo / brand mark -->
-        <div class="brand-icon">
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="logo">
+        <div class="logo-icon">
             <i class="fas fa-utensils"></i>
         </div>
-        <h1>Smart<span>Canteen</span></h1>
-        <p class="subhead">Order food easily · Manage orders efficiently</p>
-        <div class="hero-features">
-            <div class="feature">
-                <i class="fas fa-bolt"></i>
-                <span>Real‑time orders</span>
+        <div class="logo-text">SJC <span>Canteen</span></div>
+    </div>
+    <div class="nav-links">
+        <a href="#home">Home</a>
+        <a href="#features">Features</a>
+        <a href="#menu">Menu</a>
+        <a href="#contact">Contact</a>
+        <a href="/login" class="nav-btn">Login <i class="fas fa-arrow-right"></i></a>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<div class="hero" id="home">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <div class="hero-badge" data-aos="fade-up">ESTB. 1844</div>
+        <h1 data-aos="fade-up" data-aos-delay="200">
+            SJC Trichy<br>
+            <span>Smart Canteen</span>
+        </h1>
+        <p class="hero-subhead" data-aos="fade-up" data-aos-delay="400">
+            Freshly prepared meals for students and staff. Order online, skip the queue, enjoy your break.
+        </p>
+        
+        <div class="hero-features" data-aos="fade-up" data-aos-delay="600">
+            <div class="hero-feature">
+                <i class="fas fa-clock"></i>
+                <span>7:00 AM - 8:00 PM</span>
             </div>
-            <div class="feature">
-                <i class="fas fa-chart-line"></i>
-                <span>Smart analytics</span>
+            <div class="hero-feature">
+                <i class="fas fa-location-dot"></i>
+                <span>Main Campus</span>
             </div>
-            <div class="feature">
-                <i class="fas fa-mobile-alt"></i>
-                <span>Mobile ready</span>
+            <div class="hero-feature">
+                <i class="fas fa-wifi"></i>
+                <span>Free WiFi</span>
             </div>
         </div>
-        <a href="/login" class="hero-btn">
-            <span>Login to dashboard</span>
-            <i class="fas fa-arrow-right"></i>
-        </a>
-        <p class="demo-hint">
-            <i class="fas fa-shield-alt"></i> Secure access · Staff & students
-        </p>
+
+        <div class="hero-buttons" data-aos="fade-up" data-aos-delay="800">
+            <a href="/login" class="hero-btn hero-btn-primary">
+                <span>Login to Order</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+            <a href="/register" class="hero-btn hero-btn-outline">
+                <span>Create Account</span>
+                <i class="fas fa-user-plus"></i>
+            </a>
+        </div>
     </div>
-    <!-- Decorative abstract shape (optional) -->
-    <div class="hero-shape"></div>
 </div>
+
+<!-- Stats Section -->
+<div class="stats">
+    <div class="stats-container">
+        <div class="stat-item" data-aos="fade-up">
+            <div class="stat-number">50+</div>
+            <div class="stat-label">Food Items</div>
+        </div>
+        <div class="stat-item" data-aos="fade-up" data-aos-delay="200">
+            <div class="stat-number">1000+</div>
+            <div class="stat-label">Happy Students</div>
+        </div>
+        <div class="stat-item" data-aos="fade-up" data-aos-delay="400">
+            <div class="stat-number">15+</div>
+            <div class="stat-label">Years of Service</div>
+        </div>
+        <div class="stat-item" data-aos="fade-up" data-aos-delay="600">
+            <div class="stat-number">24/7</div>
+            <div class="stat-label">Online Ordering</div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="features" id="features">
+    <h2 class="section-title" data-aos="fade-up">Why Choose SJC Canteen?</h2>
+    <p class="section-subtitle" data-aos="fade-up" data-aos-delay="200">
+        Experience the best campus dining with our smart features
+    </p>
+    
+    <div class="features-grid">
+        <div class="feature-card" data-aos="fade-up" data-aos-delay="300">
+            <div class="feature-icon">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <h3>Real-time Orders</h3>
+            <p>Place orders instantly and track their status in real-time. No more waiting in long queues.</p>
+        </div>
+        
+        <div class="feature-card" data-aos="fade-up" data-aos-delay="400">
+            <div class="feature-icon">
+                <i class="fas fa-mobile-alt"></i>
+            </div>
+            <h3>Mobile Ready</h3>
+            <p>Order from your phone anytime, anywhere. Fully responsive design for all devices.</p>
+        </div>
+        
+        <div class="feature-card" data-aos="fade-up" data-aos-delay="500">
+            <div class="feature-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <h3>Smart Analytics</h3>
+            <p>Track your spending and ordering patterns. Make informed food choices.</p>
+        </div>
+        
+        <div class="feature-card" data-aos="fade-up" data-aos-delay="600">
+            <div class="feature-icon">
+                <i class="fas fa-tag"></i>
+            </div>
+            <h3>Student Discounts</h3>
+            <p>Special prices for SJC students. Show your ID and save on every order.</p>
+        </div>
+        
+        <div class="feature-card" data-aos="fade-up" data-aos-delay="700">
+            <div class="feature-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <h3>Quick Service</h3>
+            <p>Average wait time under 10 minutes. Perfect for your break between classes.</p>
+        </div>
+        
+        <div class="feature-card" data-aos="fade-up" data-aos-delay="800">
+            <div class="feature-icon">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <h3>Hygienic Food</h3>
+            <p>Prepared in clean, modern kitchen. Highest standards of food safety.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Menu Preview -->
+<div class="menu-preview" id="menu">
+    <h2 class="section-title" data-aos="fade-up">Today's Specials</h2>
+    <p class="section-subtitle" data-aos="fade-up" data-aos-delay="200">
+        Freshly prepared by our chefs
+    </p>
+    
+    <div class="menu-grid">
+        <div class="menu-item" data-aos="fade-up" data-aos-delay="300">
+            <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Burger">
+            <div class="menu-item-content">
+                <h4>SJC Special Burger</h4>
+                <div class="menu-item-price">₹120</div>
+            </div>
+        </div>
+        
+        <div class="menu-item" data-aos="fade-up" data-aos-delay="400">
+            <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Pizza">
+            <div class="menu-item-content">
+                <h4>Margherita Pizza</h4>
+                <div class="menu-item-price">₹180</div>
+            </div>
+        </div>
+        
+        <div class="menu-item" data-aos="fade-up" data-aos-delay="500">
+            <img src="https://images.unsplash.com/photo-1589302168068-964664d93dc0?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Biryani">
+            <div class="menu-item-content">
+                <h4>Chicken Biryani</h4>
+                <div class="menu-item-price">₹150</div>
+            </div>
+        </div>
+        
+        <div class="menu-item" data-aos="fade-up" data-aos-delay="600">
+            <img src="https://images.unsplash.com/photo-1551024601-bec78aea704b?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Coffee">
+            <div class="menu-item-content">
+                <h4>Filter Coffee</h4>
+                <div class="menu-item-price">₹30</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CTA Section -->
+<div class="cta" data-aos="fade-up">
+    <h2>Ready to Order?</h2>
+    <p>Join thousands of SJC students who order online every day</p>
+    <a href="/register" class="cta-btn">
+        <span>Create Free Account</span>
+        <i class="fas fa-arrow-right"></i>
+    </a>
+</div>
+
+<!-- Footer -->
+<footer id="contact">
+    <div class="footer-content">
+        <div class="footer-col">
+            <h4>SJC Canteen</h4>
+            <p>St. Joseph's College</p>
+            <p>Tiruchirappalli - 620002</p>
+            <p>Tamil Nadu, India</p>
+            <div class="social-links">
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+        </div>
+        
+        <div class="footer-col">
+            <h4>Quick Links</h4>
+            <a href="#home">Home</a>
+            <a href="#features">Features</a>
+            <a href="#menu">Menu</a>
+            <a href="/login">Login</a>
+            <a href="/register">Register</a>
+        </div>
+        
+        <div class="footer-col">
+            <h4>Contact Us</h4>
+            <p><i class="fas fa-phone"></i> +91 431 123 4567</p>
+            <p><i class="fas fa-envelope"></i> canteen@sjctrichy.edu</p>
+            <p><i class="fas fa-clock"></i> Mon - Sat: 7:00 AM - 8:00 PM</p>
+            <p><i class="fas fa-clock"></i> Sun: Closed</p>
+        </div>
+        
+        <div class="footer-col">
+            <h4>Newsletter</h4>
+            <p>Get updates on specials and offers</p>
+            <div style="display: flex; gap: 10px; margin-top: 1rem;">
+                <input type="email" placeholder="Your email" style="padding: 0.7rem; border: none; border-radius: 5px; flex: 1;">
+                <button style="padding: 0.7rem 1rem; background: var(--sjc-gold); color: var(--sjc-blue); border: none; border-radius: 5px; cursor: pointer;"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer-bottom">
+        <p>© 2026 St. Joseph's College Canteen. All rights reserved. | Designed with ❤️ for SJC Trichy</p>
+    </div>
+</footer>
+
+<!-- AOS Animation Library -->
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    AOS.init({
+        duration: 1000,
+        once: true
+    });
+</script>
 
 </body>
 </html>

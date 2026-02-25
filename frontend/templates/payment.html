@@ -1,118 +1,165 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment | Smart Canteen</title>
-    
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <!-- Professional CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);">
+{% extends "base.html" %}
 
+{% block title %}Payment | SJC Trichy Canteen{% endblock %}
+
+{% block content %}
 <div class="auth-container" style="max-width: 500px;">
-    <div class="auth-card" style="padding: 2.5rem;">
+    <div class="auth-card" style="padding: 2.5rem; border-top: 4px solid var(--sjc-gold);">
         <!-- Header -->
         <div class="auth-header">
-            <div class="auth-icon" style="background: var(--accent-soft);">
-                <i class="fas fa-credit-card" style="color: var(--accent);"></i>
+            <div class="auth-icon" style="background: var(--sjc-blue);">
+                <i class="fas fa-lock" style="color: var(--sjc-gold);"></i>
             </div>
-            <h2 style="color: var(--gray-900);">Complete Payment</h2>
-            <p class="auth-subtitle">Secure and hassle-free checkout</p>
+            <h2 style="color: var(--sjc-blue);">SJC Trichy Payment</h2>
+            <p class="auth-subtitle">Secure checkout for students & staff</p>
         </div>
 
         <!-- Order Summary Card -->
-        <div style="background: var(--gray-50); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 2rem; border: 1px solid var(--gray-200);">
+        <div style="background: #f8f9fa; border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; border: 1px solid #e0e0e0;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1rem;">
-                <div style="background: var(--accent-soft); width: 40px; height: 40px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center;">
-                    <i class="fas fa-receipt" style="color: var(--accent);"></i>
+                <div style="background: var(--sjc-gold); width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-receipt" style="color: var(--sjc-blue);"></i>
                 </div>
                 <div>
-                    <h4 style="margin-bottom: 4px; color: var(--gray-800);">Order Summary</h4>
-                    <p style="color: var(--gray-500); font-size: 0.9rem;">Order #{{ order.id }}</p>
+                    <h4 style="margin-bottom: 4px; color: var(--sjc-blue);">Order Summary</h4>
+                    <p style="color: var(--gray-600); font-size: 0.9rem;">Order #{{ order.id }}</p>
                 </div>
             </div>
             
-            <div style="border-top: 1px solid var(--gray-200); padding-top: 1rem;">
+            <div style="border-top: 1px dashed var(--sjc-gold); padding-top: 1rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
                     <span style="color: var(--gray-600);">Subtotal</span>
                     <span style="font-weight: 500;">₹ {{ order.total_amount }}</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                    <span style="color: var(--gray-600);">Tax & Fees</span>
-                    <span style="font-weight: 500;">₹ 0.00</span>
+                    <span style="color: var(--gray-600);">Student Discount</span>
+                    <span style="font-weight: 500; color: green;">- ₹ 0</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.75rem; margin-top: 0.75rem; border-top: 2px dashed var(--gray-300);">
-                    <span style="font-size: 1.1rem; font-weight: 700; color: var(--gray-800);">Total</span>
-                    <span style="font-size: 1.5rem; font-weight: 800; color: var(--accent);">₹ {{ order.total_amount }}</span>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.75rem; margin-top: 0.75rem; border-top: 2px dashed var(--sjc-gold);">
+                    <span style="font-size: 1.1rem; font-weight: 700; color: var(--sjc-blue);">Total</span>
+                    <span style="font-size: 1.8rem; font-weight: 800; color: var(--sjc-gold);">₹ {{ order.total_amount }}</span>
                 </div>
             </div>
         </div>
 
         <!-- Payment Methods -->
         <div style="margin-bottom: 2rem;">
-            <h4 style="display: flex; align-items: center; gap: 8px; margin-bottom: 1.25rem; color: var(--gray-700);">
-                <i class="fas fa-credit-card" style="color: var(--accent);"></i>
+            <h4 style="display: flex; align-items: center; gap: 8px; margin-bottom: 1.25rem; color: var(--sjc-blue);">
+                <i class="fas fa-credit-card" style="color: var(--sjc-gold);"></i>
                 Select Payment Method
             </h4>
             
-            <!-- Demo Payment Options -->
             <div style="display: flex; flex-direction: column; gap: 12px;">
-                <label style="display: flex; align-items: center; gap: 12px; padding: 1rem; border: 2px solid var(--gray-200); border-radius: var(--radius); cursor: pointer; transition: all 0.2s; background: var(--white);">
-                    <input type="radio" name="payment_method" value="cash" checked style="width: 18px; height: 18px; accent-color: var(--accent);">
+                <!-- Cash on Delivery -->
+                <label style="display: flex; align-items: center; gap: 12px; padding: 1rem; border: 2px solid #e0e0e0; border-radius: 12px; cursor: pointer; transition: all 0.2s; background: white;">
+                    <input type="radio" name="payment_method" value="CASH" checked style="width: 18px; height: 18px; accent-color: var(--sjc-gold);">
                     <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
-                        <div style="background: #fef3c7; width: 40px; height: 40px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center;">
+                        <div style="background: #fef3c7; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
                             <i class="fas fa-money-bill-wave" style="color: #d97706;"></i>
                         </div>
                         <div>
-                            <div style="font-weight: 600; color: var(--gray-800);">Cash on Delivery</div>
+                            <div style="font-weight: 600; color: var(--sjc-blue);">Cash on Delivery</div>
                             <div style="font-size: 0.85rem; color: var(--gray-500);">Pay when you receive your order</div>
                         </div>
                     </div>
                 </label>
                 
-                <label style="display: flex; align-items: center; gap: 12px; padding: 1rem; border: 2px solid var(--gray-200); border-radius: var(--radius); cursor: pointer; transition: all 0.2s; background: var(--white); opacity: 0.6;">
-                    <input type="radio" name="payment_method" value="online" disabled style="width: 18px; height: 18px;">
+                <!-- SJC Smart Card (New) -->
+                <label style="display: flex; align-items: center; gap: 12px; padding: 1rem; border: 2px solid #e0e0e0; border-radius: 12px; cursor: pointer; transition: all 0.2s; background: white;">
+                    <input type="radio" name="payment_method" value="SJC_CARD" id="sjc-card-radio" style="width: 18px; height: 18px; accent-color: var(--sjc-gold);">
                     <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
-                        <div style="background: #e0f2fe; width: 40px; height: 40px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center;">
+                        <div style="background: #e0f2fe; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-id-card" style="color: #0284c7;"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600; color: var(--sjc-blue);">SJC Smart Card</div>
+                            <div style="font-size: 0.85rem; color: var(--gray-500);">Pay with your college ID card</div>
+                        </div>
+                    </div>
+                </label>
+                
+                <!-- UPI -->
+                <label style="display: flex; align-items: center; gap: 12px; padding: 1rem; border: 2px solid #e0e0e0; border-radius: 12px; cursor: pointer; transition: all 0.2s; background: white;">
+                    <input type="radio" name="payment_method" value="UPI" id="upi-radio" style="width: 18px; height: 18px; accent-color: var(--sjc-gold);">
+                    <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                        <div style="background: #e0f2fe; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
                             <i class="fas fa-mobile-alt" style="color: #0284c7;"></i>
                         </div>
                         <div>
-                            <div style="font-weight: 600; color: var(--gray-800);">UPI / Card</div>
-                            <div style="font-size: 0.85rem; color: var(--gray-500);">Coming soon</div>
+                            <div style="font-weight: 600; color: var(--sjc-blue);">UPI / PhonePe / Google Pay</div>
+                            <div style="font-size: 0.85rem; color: var(--gray-500);">Pay using any UPI app</div>
                         </div>
                     </div>
                 </label>
             </div>
         </div>
 
+        <!-- UPI Details (shown when UPI selected) -->
+        <div id="upi-details" style="display: none; margin-bottom: 2rem; padding: 1.5rem; background: #f8f9fa; border-radius: 12px; border: 1px solid var(--sjc-gold);">
+            <h4 style="margin-bottom: 1rem; color: var(--sjc-blue);">UPI Payment</h4>
+            <div style="text-align: center;">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=sjc-canteen-{{ order.id }}" alt="QR Code" style="width: 150px; height: 150px; margin-bottom: 1rem;">
+                <p style="color: var(--gray-600);">Scan this QR code with any UPI app</p>
+                <p style="background: white; padding: 0.5rem; border-radius: 8px; font-family: monospace;">sjc@icici</p>
+            </div>
+        </div>
+
         <!-- Payment Form -->
-        <form method="post">
-            <!-- Hidden input to preserve the selected payment method -->
-            <input type="hidden" name="payment_method" value="cash">
+        <form id="payment-form" method="post">
+            <input type="hidden" name="payment_method" id="payment_method" value="CASH">
+            <input type="hidden" name="order_id" value="{{ order.id }}">
             
             <div style="display: flex; gap: 1rem;">
-                <a href="{{ url_for('order_bp.my_orders') }}" class="btn btn-outline" style="flex: 1;">
+                <a href="{{ url_for('order_bp.my_orders') }}" class="btn btn-outline" style="flex: 1; border: 2px solid var(--sjc-blue); color: var(--sjc-blue);">
                     <i class="fas fa-arrow-left"></i>
                     Cancel
                 </a>
-                <button type="submit" class="btn btn-primary" style="flex: 2;">
+                <button type="submit" class="btn btn-primary" style="flex: 2; background: var(--sjc-blue); border: none;">
                     <i class="fas fa-check-circle"></i>
                     Pay ₹ {{ order.total_amount }}
                 </button>
             </div>
         </form>
 
-        <!-- Security Badge -->
-        <div style="margin-top: 2rem; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--gray-500); font-size: 0.85rem;">
-            <i class="fas fa-shield-alt" style="color: var(--accent);"></i>
-            <span>Secure payment • 256-bit SSL encrypted</span>
+        <!-- SJC Trust Badge -->
+        <div style="margin-top: 2rem; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--gray-500); font-size: 0.85rem; border-top: 1px solid #e0e0e0; padding-top: 1.5rem;">
+            <i class="fas fa-shield-alt" style="color: var(--sjc-gold);"></i>
+            <span>Secure payment • SJC Trichy • Since 1844</span>
         </div>
     </div>
 </div>
 
-</body>
-</html>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const cashRadio = document.querySelector('input[value="CASH"]');
+    const upiRadio = document.getElementById('upi-radio');
+    const upiDetails = document.getElementById('upi-details');
+    const paymentMethodInput = document.getElementById('payment_method');
+    
+    // Show/hide UPI details
+    function toggleUPIDetails() {
+        if (upiRadio && upiRadio.checked) {
+            upiDetails.style.display = 'block';
+            paymentMethodInput.value = 'UPI';
+        } else {
+            upiDetails.style.display = 'none';
+            if (cashRadio && cashRadio.checked) {
+                paymentMethodInput.value = 'CASH';
+            } else {
+                paymentMethodInput.value = 'SJC_CARD';
+            }
+        }
+    }
+    
+    if (upiRadio) {
+        upiRadio.addEventListener('change', toggleUPIDetails);
+    }
+    
+    if (cashRadio) {
+        cashRadio.addEventListener('change', toggleUPIDetails);
+    }
+    
+    document.querySelector('input[value="SJC_CARD"]')?.addEventListener('change', toggleUPIDetails);
+});
+</script>
+{% endblock %}

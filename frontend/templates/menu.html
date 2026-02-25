@@ -1,81 +1,99 @@
 {% extends "base.html" %}
 
-{% block title %}Our Menu | Smart Canteen{% endblock %}
+{% block title %}Food Menu | SJC Canteen{% endblock %}
 
-{% block menu_active %}style="color: var(--accent);"{% endblock %}
+{% block menu_active %}style="color: var(--sjc-gold);"{% endblock %}
 
 {% block content %}
-<!-- Menu Section -->
-<section class="menu-section">
-    <!-- Header -->
-    <div class="page-header">
-        <div>
-            <h1 class="page-title">
-                <i class="fas fa-utensils" style="color: var(--accent); margin-right: 12px;"></i>
-                Today's Menu
-            </h1>
-            <p class="page-subtitle">
-                Freshly prepared • Hygienic • Delicious
-            </p>
-        </div>
-        <div style="background: var(--accent-soft); padding: 0.75rem 1.5rem; border-radius: var(--radius-full);">
-            <i class="fas fa-clock" style="color: var(--accent); margin-right: 8px;"></i>
-            <span style="font-weight: 500;">Serving: 11:00 AM - 8:00 PM</span>
-        </div>
+<!-- Hero Section with Food Background -->
+<div style="position: relative; min-height: 400px; background: linear-gradient(rgba(0,0,0,0.6), rgba(0,51,102,0.8)), url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80'); background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; text-align: center; color: white;">
+    <div style="max-width: 800px; padding: 2rem;">
+        <span class="sjc-badge" style="margin-bottom: 1rem;">🍽️ TODAY'S SPECIALS</span>
+        <h1 style="font-size: 3.5rem; font-family: 'Playfair Display', serif; margin-bottom: 1rem;">SJC Canteen Menu</h1>
+        <p style="font-size: 1.2rem; opacity: 0.9;">Freshly prepared with love by our chefs • Hygienic • Delicious</p>
     </div>
+</div>
 
+<!-- Menu Categories -->
+<div style="background: white; padding: 2rem; box-shadow: 0 4px 20px rgba(0,0,0,0.1); position: sticky; top: 70px; z-index: 100;">
+    <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+        <button class="filter-btn active" data-category="all" style="background: var(--sjc-blue); color: white; border: none; padding: 0.7rem 2rem; border-radius: 30px; font-weight: 600; cursor: pointer;">All Items</button>
+        <button class="filter-btn" data-category="biryani" style="background: white; color: var(--sjc-blue); border: 2px solid var(--sjc-blue); padding: 0.7rem 2rem; border-radius: 30px; font-weight: 600; cursor: pointer;">Biryani</button>
+        <button class="filter-btn" data-category="burger" style="background: white; color: var(--sjc-blue); border: 2px solid var(--sjc-blue); padding: 0.7rem 2rem; border-radius: 30px; font-weight: 600; cursor: pointer;">Burgers</button>
+        <button class="filter-btn" data-category="pizza" style="background: white; color: var(--sjc-blue); border: 2px solid var(--sjc-blue); padding: 0.7rem 2rem; border-radius: 30px; font-weight: 600; cursor: pointer;">Pizza</button>
+        <button class="filter-btn" data-category="snacks" style="background: white; color: var(--sjc-blue); border: 2px solid var(--sjc-blue); padding: 0.7rem 2rem; border-radius: 30px; font-weight: 600; cursor: pointer;">Snacks</button>
+    </div>
+</div>
+
+<!-- Menu Grid Section -->
+<section class="menu-section" style="max-width: 1200px; margin: 3rem auto; padding: 0 2rem;">
     <!-- Menu Grid -->
     {% if products|length == 0 %}
-    <div style="text-align: center; padding: 4rem 2rem; background: var(--white); border-radius: var(--radius-lg); border: 1px solid var(--gray-200);">
-        <i class="fas fa-utensil-spoon" style="font-size: 4rem; color: var(--gray-300); margin-bottom: 1.5rem;"></i>
-        <h3 style="color: var(--gray-700); margin-bottom: 0.75rem;">No Items Available</h3>
-        <p style="color: var(--gray-500); font-size: 1.1rem;">
+    <div style="text-align: center; padding: 4rem 2rem; background: white; border-radius: 20px; border: 1px solid #e0e0e0;">
+        <i class="fas fa-utensil-spoon" style="font-size: 4rem; color: #ccc; margin-bottom: 1.5rem;"></i>
+        <h3 style="color: var(--sjc-blue); margin-bottom: 0.75rem;">No Items Available</h3>
+        <p style="color: #666; font-size: 1.1rem;">
             😔 Our chefs are preparing something delicious. Check back soon!
         </p>
     </div>
     {% else %}
-    <div class="menu-grid">
+    <div class="menu-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem;">
         {% for product in products %}
-        <div class="menu-card">
-            <img 
-                src="{{ url_for('static', filename='images/' ~ (product.image or 'burger.jpg')) }}" 
-                alt="{{ product.name }}"
-                class="menu-image"
-                onerror="this.src='https://via.placeholder.com/300x200?text=Food+Item'"
-            >
-            <div class="menu-content">
-                <h3 class="menu-title">{{ product.name }}</h3>
+        <div class="menu-card" data-category="
+            {% if 'biryani' in product.name.lower() %}biryani
+            {% elif 'burger' in product.name.lower() %}burger
+            {% elif 'pizza' in product.name.lower() %}pizza
+            {% else %}snacks{% endif %}"
+            style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); transition: transform 0.3s, box-shadow 0.3s; border: 1px solid #f0f0f0;">
+            
+            <!-- Food Image with gradient overlay -->
+            <div style="position: relative; height: 220px; overflow: hidden;">
+                <img 
+                    src="{{ url_for('static', filename='images/' ~ (product.image or 'burger.jpg')) }}" 
+                    alt="{{ product.name }}"
+                    style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s;"
+                    onerror="this.src='https://images.unsplash.com/photo-1568901346375-23c9450c58cd?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80'"
+                >
+                <div style="position: absolute; top: 10px; right: 10px; background: var(--sjc-gold); color: var(--sjc-blue); padding: 0.4rem 1rem; border-radius: 30px; font-weight: 700; font-size: 1.2rem;">
+                    ₹{{ product.price }}
+                </div>
+                <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,51,102,0.9), transparent); height: 80px;"></div>
+            </div>
+            
+            <div class="menu-content" style="padding: 1.5rem;">
+                <h3 class="menu-title" style="font-size: 1.4rem; margin-bottom: 0.5rem; color: var(--sjc-blue);">{{ product.name }}</h3>
                 
                 {% if product.description %}
-                <p class="menu-description">{{ product.description }}</p>
+                <p class="menu-description" style="color: #666; margin-bottom: 1.5rem; line-height: 1.6;">{{ product.description }}</p>
+                {% else %}
+                <p class="menu-description" style="color: #666; margin-bottom: 1.5rem;">Freshly prepared SJC special</p>
                 {% endif %}
                 
-                <div class="menu-price">₹ {{ product.price }}</div>
-                
-                <!-- FIXED: AJAX form with proper headers and data attributes -->
+                <!-- Order Form with AJAX -->
                 <form action="/order/{{ product.id }}" method="post" 
                       class="order-form"
                       data-product-id="{{ product.id }}"
                       data-product-name="{{ product.name }}"
                       data-product-price="{{ product.price }}"
-                      style="display: flex; gap: 10px; align-items: center; justify-content: space-between;">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <label for="quantity-{{ product.id }}" style="font-size: 0.9rem; color: var(--gray-600);">Qty:</label>
+                      style="display: flex; gap: 10px; align-items: center;">
+                    
+                    <div style="display: flex; align-items: center; border: 1px solid #ddd; border-radius: 10px; overflow: hidden;">
+                        <button type="button" class="qty-btn" style="border: none; background: #f5f5f5; padding: 0.5rem 1rem; cursor: pointer;" onclick="decrementQty(this)">−</button>
                         <input 
                             type="number" 
-                            id="quantity-{{ product.id }}" 
                             name="quantity" 
                             value="1" 
                             min="1" 
                             max="10"
                             class="quantity-input"
-                            style="width: 70px;"
-                            required
+                            style="width: 50px; text-align: center; border: none; border-left: 1px solid #ddd; border-right: 1px solid #ddd; padding: 0.5rem 0;"
+                            readonly
                         >
+                        <button type="button" class="qty-btn" style="border: none; background: #f5f5f5; padding: 0.5rem 1rem; cursor: pointer;" onclick="incrementQty(this)">+</button>
                     </div>
-                    <button type="submit" class="add-to-cart order-btn">
-                        <i class="fas fa-shopping-cart"></i>
-                        Order
+                    
+                    <button type="submit" class="add-to-cart order-btn" style="flex: 1; background: var(--sjc-blue); color: white; border: none; padding: 0.8rem; border-radius: 10px; font-weight: 600; cursor: pointer; transition: background 0.3s;">
+                        <i class="fas fa-shopping-cart"></i> Order
                     </button>
                 </form>
             </div>
@@ -87,15 +105,51 @@
 
 {% block extra_js %}
 <script>
-// ========== FIXED AJAX ORDER PLACEMENT ==========
+// Quantity buttons
+function incrementQty(btn) {
+    const input = btn.parentElement.querySelector('input[name="quantity"]');
+    const current = parseInt(input.value);
+    if (current < 10) input.value = current + 1;
+}
+
+function decrementQty(btn) {
+    const input = btn.parentElement.querySelector('input[name="quantity"]');
+    const current = parseInt(input.value);
+    if (current > 1) input.value = current - 1;
+}
+
+// Filter functionality
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🍽️ Menu page loaded');
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const menuCards = document.querySelectorAll('.menu-card');
     
-    // Get all order forms
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Update active button style
+            filterBtns.forEach(b => {
+                b.style.background = 'white';
+                b.style.color = 'var(--sjc-blue)';
+                b.style.border = '2px solid var(--sjc-blue)';
+            });
+            this.style.background = 'var(--sjc-blue)';
+            this.style.color = 'white';
+            this.style.border = '2px solid var(--sjc-blue)';
+            
+            const category = this.dataset.category;
+            
+            menuCards.forEach(card => {
+                if (category === 'all' || card.dataset.category === category) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+    
+    // AJAX Order Placement
     const orderForms = document.querySelectorAll('.order-form');
-    console.log(`📦 Found ${orderForms.length} order forms`);
     
-    // Add submit event listener to each form
     orderForms.forEach(form => {
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -105,88 +159,55 @@ document.addEventListener('DOMContentLoaded', function() {
             const button = this.querySelector('.order-btn');
             const quantity = this.querySelector('input[name="quantity"]').value;
             
-            console.log(`🛒 Ordering: ${quantity}x ${productName} (ID: ${productId})`);
-            
             // Show loading state
-            Loading.show(button);
-            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Placing...';
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
             
             try {
-                // Send AJAX request with proper headers
                 const response = await fetch(`/order/${productId}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-Requested-With': 'XMLHttpRequest'  // CRITICAL: Marks as AJAX request
+                        'X-Requested-With': 'XMLHttpRequest'
                     },
-                    body: new URLSearchParams({
-                        'quantity': quantity
-                    })
+                    body: new URLSearchParams({ 'quantity': quantity })
                 });
                 
-                console.log(`📡 Response status: ${response.status}`);
+                const data = await response.json();
                 
-                // Check if response is JSON
-                const contentType = response.headers.get('content-type');
-                if (contentType && contentType.includes('application/json')) {
-                    const data = await response.json();
-                    Loading.hide(button);
-                    button.innerHTML = '<i class="fas fa-shopping-cart"></i> Order';
+                if (response.ok && data.success) {
+                    Toast.success(`✅ ${quantity}x ${productName} added to cart!`);
                     
-                    if (response.ok && data.success) {
-                        // SUCCESS!
-                        console.log('✅ Order success:', data);
-                        Toast.success(`✅ ${data.message}`);
-                        
-                        // Add animation
-                        button.style.background = '#10b981';
-                        setTimeout(() => {
-                            button.style.background = '';
-                        }, 500);
-                        
-                        // Reset quantity to 1
-                        this.querySelector('input[name="quantity"]').value = 1;
-                        
-                        // Ask if user wants to proceed to payment
-                        setTimeout(() => {
-                            if (confirm('🛒 Order placed! Go to payment now?')) {
-                                window.location.href = data.redirect;
-                            }
-                        }, 1000);
-                        
-                    } else {
-                        // ERROR from server
-                        console.error('❌ Order failed:', data);
-                        Toast.error(`❌ ${data.error || 'Failed to place order'}`);
-                        
-                        // If not logged in, redirect after 2 seconds
-                        if (response.status === 401) {
-                            setTimeout(() => {
-                                window.location.href = data.redirect || '/login';
-                            }, 2000);
-                        }
-                    }
+                    // Reset quantity
+                    this.querySelector('input[name="quantity"]').value = 1;
+                    
+                    // Animation
+                    button.style.background = '#28a745';
+                    setTimeout(() => {
+                        button.style.background = 'var(--sjc-blue)';
+                    }, 500);
+                    
                 } else {
-                    // Handle HTML response (should not happen with AJAX)
-                    const text = await response.text();
-                    Loading.hide(button);
-                    button.innerHTML = '<i class="fas fa-shopping-cart"></i> Order';
-                    console.error('❌ Received HTML instead of JSON:', text.substring(0, 100));
-                    Toast.error('❌ Server error. Please try again.');
+                    Toast.error(`❌ ${data.error || 'Failed to order'}`);
+                    
+                    if (response.status === 401) {
+                        setTimeout(() => {
+                            window.location.href = data.redirect || '/login';
+                        }, 2000);
+                    }
                 }
-                
             } catch (error) {
-                Loading.hide(button);
+                Toast.error('❌ Network error. Please try again.');
+            } finally {
+                button.disabled = false;
                 button.innerHTML = '<i class="fas fa-shopping-cart"></i> Order';
-                console.error('❌ Network error:', error);
-                Toast.error('❌ Network error. Please check your connection.');
             }
         });
     });
     
     // Welcome toast
     setTimeout(() => {
-        Toast.success('🍽️ Welcome! Ready to order?');
+        Toast.success('🍽️ Welcome to SJC Canteen!');
     }, 500);
 });
 </script>
