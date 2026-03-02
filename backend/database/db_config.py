@@ -9,7 +9,7 @@ def get_db_connection():
             connection = mysql.connector.connect(
                 host='127.0.0.1',
                 user='root',
-                password='',
+                password='1234',
                 database='smart_canteen',
                 port=3306,
                 connection_timeout=5
@@ -27,7 +27,7 @@ def get_db_connection():
             connection = mysql.connector.connect(
                 host=local_ip,  # Your actual IP (e.g., 10.14.128.176)
                 user='root',
-                password='',
+                password='1234',
                 database='smart_canteen',
                 port=3306
             )
