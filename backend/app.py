@@ -78,7 +78,7 @@ from backend.routes.order_routes import order_bp
 from backend.routes.payment_routes import payment_bp
 
 # ✅ Import DB connection
-from backend.db_config import get_db_connection
+from backend.database.db_config import get_db_connection
 
 
 app = Flask(
