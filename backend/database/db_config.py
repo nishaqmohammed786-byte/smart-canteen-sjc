@@ -56,12 +56,21 @@ from psycopg2.extras import RealDictCursor
 
 def get_db_connection():
     try:
-        connection = psycopg2.connect(
-            os.environ.get("DATABASE_URL"),
-            cursor_factory=RealDictCursor
+        database_url = os.environ.get("DATABASE_URL")
+
+        if not database_url:
+            print("❌ DATABASE_URL not found")
+            return None
+
+        conn = psycopg2.connect(
+            database_url,
+            cursor_factory=RealDictCursor,
+            connect_timeout=5
         )
+
         print("✅ Connected to PostgreSQL")
-        return connection
+        return conn
+
     except Exception as e:
-        print(f"❌ Database connection error: {e}")
+        print("❌ DB Error:", e)
         return None
