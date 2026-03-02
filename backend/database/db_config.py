@@ -56,11 +56,13 @@ from psycopg2.extras import RealDictCursor
 
 def get_db_connection():
     try:
+        # First try environment variable (Render)
         database_url = os.environ.get("DATABASE_URL")
 
+        # If not found, use your Render DB directly (for local testing)
         if not database_url:
-            print("❌ DATABASE_URL not found")
-            return None
+            print("⚠️ Using fallback database URL")
+            database_url = "postgresql://smart_canteen_user:eAnYT1qQ5yS8kUQ12LsUl15zC8aazzxW@dpg-d6jau8p5pdvs73eoqrh0-a.oregon-postgres.render.com/smart_canteen"
 
         conn = psycopg2.connect(
             database_url,

@@ -199,7 +199,7 @@ auth_bp = Blueprint(
 )
 
 # Admin credentials (hardcoded for demo)
-ADMIN_EMAIL = "admin@sjctrichy.edu"
+ADMIN_EMAIL = "admin@gmail.com"
 ADMIN_PASSWORD = "admin123"
 
 
