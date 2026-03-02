@@ -1,9 +1,12 @@
+import eventlet
+eventlet.monkey_patch()
+
 from backend.app import app, socketio
 import os
 
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
+port = int(os.environ.get("PORT", 5000))
 
+if __name__ == "__main__":
     print("\n" + "="*50)
     print("🚀 SJC CANTEEN SERVER STARTING...")
     print("="*50)
